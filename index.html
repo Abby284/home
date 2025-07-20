@@ -16,15 +16,15 @@
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(205, 200, 205, 0.1);
     }
 
     .poster {
       transition: transform 0.4s ease, box-shadow 0.3s ease;
     }
 
-    .poster:hover {
-      transform: rotateY(5deg) scale(1.03);
+    .poster: hover {
+      transform: rotateY(5deg) scale(1.10);
       box-shadow: 0 20px 40px rgba(255, 0, 100, 0.3);
     }
 
@@ -43,13 +43,13 @@
     }
 
     .fade-in {
-      opacity: 0;
-      animation: fade 1s forwards;
+      opacity: 20;
+      animation: fade 2s forwards;
     }
 
     @keyframes fade {
       to {
-        opacity: 1;
+        opacity: 10;
       }
     }
   </style>
