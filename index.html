@@ -1,126 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>SwipeFlix 🎬</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
     body {
-      background: linear-gradient(145deg, #1c1c1c, #0a0a0a);
+      background: linear-gradient(to bottom, #0f0f0f, #1c1c1c);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .poster {
+      transition: transform 0.4s ease, box-shadow 0.3s ease;
+    }
+
+    .poster:hover {
+      transform: rotateY(5deg) scale(1.03);
+      box-shadow: 0 20px 40px rgba(255, 0, 100, 0.3);
+    }
+
+    .neon-button {
+      background: linear-gradient(145deg, #12c2e9, #c471ed, #f64f59);
       color: white;
-      overflow-x: hidden;
+      font-weight: bold;
+      box-shadow: 0 0 10px #f64f59, 0 0 20px #c471ed;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      background-color: #121212;
-      box-shadow: 0 0 25px #ff416c;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      color: #ff416c;
-      cursor: pointer;
-      text-shadow: 0 0 10px #ff416c;
-    }
-    header button {
-      background: #ff416c;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
+
+    .section-header {
       color: white;
-      font-size: 1rem;
-      box-shadow: 0 0 10px #ff416c;
-      cursor: pointer;
-      transition: transform 0.3s;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-shadow: 0 0 5px #ff3cac;
     }
-    header button:hover {
-      transform: scale(1.1);
+
+    .fade-in {
+      opacity: 0;
+      animation: fade 1s forwards;
     }
-    .section-title {
-      font-size: 2rem;
-      margin: 40px 0 10px 30px;
-      color: #fff;
-      text-shadow: 0 0 10px #00e0ff;
-    }
-    .movie-section {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 20px;
-      gap: 20px;
-    }
-    .movie-poster {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
-      width: 180px;
-      height: 270px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(255, 0, 255, 0.5);
-      transition: transform 0.4s, box-shadow 0.4s;
-    }
-    .movie-poster:hover {
-      transform: rotateY(15deg) scale(1.1);
-      box-shadow: 0 0 20px #0ff, 0 0 30px #f0f;
-    }
-    .movie-section::-webkit-scrollbar {
-      height: 10px;
-    }
-    .movie-section::-webkit-scrollbar-thumb {
-      background: #ff416c;
-      border-radius: 10px;
+
+    @keyframes fade {
+      to {
+        opacity: 1;
+      }
     }
   </style>
 </head>
-<body>
-  <header>
-    <h1 onclick="location.href='index.html'">SwipeFlix 🎬</h1>
-    <button onclick="location.href='login.html'">Login & Mood 🎭</button>
+
+<body class="text-white min-h-screen">
+  <!-- Navbar -->
+  <header class="glass flex justify-between items-center p-6 shadow-lg">
+    <h1 class="text-4xl font-bold text-pink-500">SwipeFlix 🎬</h1>
+    <a href="login.html">
+      <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-md transition">
+        Login & Mood 🎭🥰
+      </button>
+    </a>
   </header>
 
-  <h2 class="section-title">Now Showing Near You 🍿</h2>
-  <div id="now-showing" class="movie-section"></div>
+  <main class="p-8 space-y-12">
+    <!-- Now Showing -->
+    <section>
+      <h2 class="section-header mb-4">Now Showing Near You 🍿</h2>
+      <div id="nowPlaying" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
+    </section>
 
-  <h2 class="section-title">Upcoming Releases 🎥</h2>
-  <div id="upcoming" class="movie-section"></div>
+    <!-- Upcoming -->
+    <section>
+      <h2 class="section-header mb-4">Upcoming Releases 🎥</h2>
+      <div id="upcoming" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
+    </section>
+
+    <!-- Button -->
+    <div class="flex justify-center mt-10">
+      <a href="Recommendations.html">
+        <button class="neon-button px-6 py-3 rounded-xl hover:scale-105 transition transform duration-300">
+          🎯 Get Movie Recommendations
+        </button>
+      </a>
+    </div>
+  </main>
 
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
     async function fetchMovies(endpoint) {
-      const response = await fetch(`https://api.themoviedb.org/3/movie/${endpoint}?api_key=${API_KEY}&language=hi-IN&region=IN`);
-      const data = await response.json();
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${endpoint}?api_key=${API_KEY}&language=en-IN`);
+      const data = await res.json();
       return data.results;
     }
 
-    function displayMovies(movies, containerId) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      movies.forEach(movie => {
-        if (!movie.poster_path) return;
-        const img = document.createElement('img');
-        img.src = IMAGE_BASE + movie.poster_path;
-        img.alt = movie.title;
-        img.className = 'movie-poster';
-        container.appendChild(img);
-      });
+    function createPosterCard(movie) {
+      return `
+        <a href="https://in.bookmyshow.com/explore/movies/${movie.title.replace(/\s+/g, '-').toLowerCase()}" target="_blank">
+          <div class="poster bg-zinc-900 rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:scale-105 transition">
+            <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" class="w-full h-72 object-cover rounded-t-xl">
+            <div class="p-3 text-sm font-semibold text-center">${movie.title}</div>
+          </div>
+        </a>
+      `;
     }
 
-    (async function loadMovies() {
+    async function loadMovies() {
       const nowPlaying = await fetchMovies('now_playing');
       const upcoming = await fetchMovies('upcoming');
-      displayMovies(nowPlaying, 'now-showing');
-      displayMovies(upcoming, 'upcoming');
-    })();
+
+      document.getElementById('nowPlaying').innerHTML = nowPlaying.slice(0, 8).map(createPosterCard).join('');
+      document.getElementById('upcoming').innerHTML = upcoming.slice(0, 8).map(createPosterCard).join('');
+    }
+
+    loadMovies();
   </script>
 </body>
 </html>
