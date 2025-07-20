@@ -11,6 +11,7 @@
       color: #fff;
       margin: 0;
       padding: 20px;
+      perspective: 1000px;
     }
     header {
       display: flex;
@@ -41,6 +42,12 @@
       overflow: hidden;
       box-shadow: 0 8px 15px rgba(0,0,0,0.7);
       cursor: pointer;
+      transform-style: preserve-3d;
+      transform: rotateY(0deg);
+      transition: transform 0.5s;
+    }
+    .movie-card:hover {
+      transform: rotateY(10deg);
     }
     .movie-card img {
       width: 100%;
@@ -148,13 +155,13 @@
         const city = location.city || 'India';
         const bookmyshowUrl = `https://in.bookmyshow.com/explore/movies-${city.toLowerCase().replace(/\s+/g, '-')}`;
 
-        const now = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&with_release_type=2|3&sort_by=release_date.desc&with_original_language=hi`).then(r => r.json());
+        const now = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&with_release_type=2|3&sort_by=release_date.desc&with_original_language=hi|te|ta|ml|kn|bn`).then(r => r.json());
         const nowContainer = document.getElementById('nowShowing');
         now.results.forEach(movie => {
           nowContainer.appendChild(createMovieCard(movie, bookmyshowUrl));
         });
 
-        const upcoming = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&sort_by=popularity.desc&with_release_type=2|3&release_date.gte=${new Date().toISOString().split('T')[0]}&with_original_language=hi`).then(r => r.json());
+        const upcoming = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&sort_by=popularity.desc&with_release_type=2|3&release_date.gte=${new Date().toISOString().split('T')[0]}&with_original_language=hi|te|ta|ml|kn|bn`).then(r => r.json());
         const upcomingContainer = document.getElementById('upcomingMovies');
         upcoming.results.forEach(movie => {
           upcomingContainer.appendChild(createMovieCard(movie, bookmyshowUrl));
