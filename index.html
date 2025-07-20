@@ -2,123 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SwipeFlix 🎬</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SwipeFlix 🎬</title>
   <style>
     body {
-      background: linear-gradient(to bottom, #0f0f0f, #1c1c1c);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #0f0f0f, #2c2c2c);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
     }
-
-    .glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #111;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
     }
-
-    .poster {
-      transition: transform 0.4s ease, box-shadow 0.3s ease;
+    header h1 {
+      font-size: 2rem;
+      color: #ff4b5c;
+      cursor: pointer;
     }
-
-    .poster:hover {
-      transform: rotateY(5deg) scale(1.03);
-      box-shadow: 0 20px 40px rgba(255, 0, 100, 0.3);
+    .movie-carousel {
+      display: flex;
+      gap: 20px;
+      overflow-x: hidden;
+      transition: transform 0.3s ease-in-out;
     }
-
-    .neon-button {
-      background: linear-gradient(145deg, #12c2e9, #c471ed, #f64f59);
+    .movie-card {
+      min-width: 180px;
+      background: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.7);
+      cursor: pointer;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+    }
+    .movie-title {
+      padding: 10px;
+      font-size: 1rem;
+      text-align: center;
+      font-weight: 600;
+    }
+    .section-heading {
+      font-size: 1.6rem;
+      margin: 30px 0 10px;
+      border-bottom: 2px solid #ff4b5c;
+      padding-bottom: 5px;
+    }
+    .login-link {
+      background: #ff4b5c;
+      padding: 10px 20px;
+      border-radius: 10px;
       color: white;
+      text-decoration: none;
       font-weight: bold;
-      box-shadow: 0 0 10px #f64f59, 0 0 20px #c471ed;
     }
-
-    .section-header {
-      color: white;
-      font-size: 1.8rem;
-      font-weight: 700;
-      text-shadow: 0 0 5px #ff3cac;
+    .recommend-btn {
+      display: block;
+      margin: 40px auto 20px;
+      background: #28a745;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+      transition: background 0.3s;
     }
-
-    .fade-in {
-      opacity: 0;
-      animation: fade 1s forwards;
+    .recommend-btn:hover {
+      background: #218838;
     }
-
-    @keyframes fade {
-      to {
-        opacity: 1;
-      }
+    .rotate-btn {
+      display: block;
+      margin: 10px auto;
+      background: #007bff;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
   </style>
 </head>
-
-<body class="text-white min-h-screen">
-  <!-- Navbar -->
-  <header class="glass flex justify-between items-center p-6 shadow-lg">
-    <h1 class="text-4xl font-bold text-pink-500">SwipeFlix 🎬</h1>
-    <a href="login.html">
-      <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-md transition">
-        Login & Mood 🎭🥰
-      </button>
-    </a>
+<body>
+  <header>
+    <h1 onclick="window.location.href='index.html'">SwipeFlix 🎬</h1>
+    <a class="login-link" href="login.html">Login & Mood 🎭</a>
   </header>
 
-  <main class="p-8 space-y-12">
-    <!-- Now Showing -->
-    <section>
-      <h2 class="section-header mb-4">Now Showing Near You 🍿</h2>
-      <div id="nowPlaying" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
-    </section>
+  <h2 class="section-heading">Now Showing Near You 🍿</h2>
+  <div class="movie-carousel" id="nowShowing"></div>
+  <button class="rotate-btn" onclick="rotateCarousel('nowShowing')">Show More 🎞️</button>
 
-    <!-- Upcoming -->
-    <section>
-      <h2 class="section-header mb-4">Upcoming Releases 🎥</h2>
-      <div id="upcoming" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
-    </section>
+  <h2 class="section-heading">Upcoming Releases 🎥</h2>
+  <div class="movie-carousel" id="upcomingMovies"></div>
+  <button class="rotate-btn" onclick="rotateCarousel('upcomingMovies')">Show More 📽️</button>
 
-    <!-- Button -->
-    <div class="flex justify-center mt-10">
-      <a href="Recommendations.html">
-        <button class="neon-button px-6 py-3 rounded-xl hover:scale-105 transition transform duration-300">
-          🎯 Get Movie Recommendations
-        </button>
-      </a>
-    </div>
-  </main>
+  <button class="recommend-btn" onclick="window.location.href='Recommendations.html'">🎯 Get Movie Recommendations</button>
 
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+    let currentIndex = {
+      nowShowing: 0,
+      upcomingMovies: 0
+    };
 
-    async function fetchMovies(endpoint) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${endpoint}?api_key=${API_KEY}&language=en-IN`);
-      const data = await res.json();
-      return data.results;
-    }
-
-    function createPosterCard(movie) {
-      return `
-        <a href="https://in.bookmyshow.com/explore/movies/${movie.title.replace(/\s+/g, '-').toLowerCase()}" target="_blank">
-          <div class="poster bg-zinc-900 rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:scale-105 transition">
-            <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" class="w-full h-72 object-cover rounded-t-xl">
-            <div class="p-3 text-sm font-semibold text-center">${movie.title}</div>
-          </div>
-        </a>
+    function createMovieCard(movie, linkTo) {
+      const div = document.createElement('div');
+      div.className = 'movie-card';
+      div.onclick = () => window.open(linkTo, '_blank');
+      div.innerHTML = `
+        <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}">
+        <div class="movie-title">${movie.title}</div>
       `;
+      return div;
     }
 
-    async function loadMovies() {
-      const nowPlaying = await fetchMovies('now_playing');
-      const upcoming = await fetchMovies('upcoming');
-
-      document.getElementById('nowPlaying').innerHTML = nowPlaying.slice(0, 8).map(createPosterCard).join('');
-      document.getElementById('upcoming').innerHTML = upcoming.slice(0, 8).map(createPosterCard).join('');
+    function rotateCarousel(id) {
+      const container = document.getElementById(id);
+      const total = container.children.length;
+      const shift = 4;
+      currentIndex[id] = (currentIndex[id] + shift) % total;
+      container.style.transform = `translateX(-${currentIndex[id] * 200}px)`;
     }
 
-    loadMovies();
+    async function fetchLocationAndMovies() {
+      try {
+        const location = await fetch('https://ipapi.co/json/').then(res => res.json());
+        const city = location.city || 'India';
+        const bookmyshowUrl = `https://in.bookmyshow.com/explore/movies-${city.toLowerCase().replace(/\s+/g, '-')}`;
+
+        const now = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&with_release_type=2|3&sort_by=release_date.desc&with_original_language=hi`).then(r => r.json());
+        const nowContainer = document.getElementById('nowShowing');
+        now.results.forEach(movie => {
+          nowContainer.appendChild(createMovieCard(movie, bookmyshowUrl));
+        });
+
+        const upcoming = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&sort_by=popularity.desc&with_release_type=2|3&release_date.gte=${new Date().toISOString().split('T')[0]}&with_original_language=hi`).then(r => r.json());
+        const upcomingContainer = document.getElementById('upcomingMovies');
+        upcoming.results.forEach(movie => {
+          upcomingContainer.appendChild(createMovieCard(movie, bookmyshowUrl));
+        });
+      } catch (error) {
+        console.error("Failed to load location or movies", error);
+      }
+    }
+
+    fetchLocationAndMovies();
   </script>
 </body>
 </html>
