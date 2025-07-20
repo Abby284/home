@@ -102,7 +102,7 @@
   <h2 class="section-heading">Upcoming Releases 🎥</h2>
   <div class="movie-section" id="upcomingMovies"></div>
 
-  <button class="recommend-btn" onclick="window.location.href='recommend.html'">🎯 Get Movie Recommendations</button>
+  <button class="recommend-btn" onclick="window.location.href='swipe.html'">🎯 Get Movie Recommendations</button>
 
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
@@ -143,11 +143,12 @@
     }
 
     fetchLocationAndMovies();
+     document.querySelector('header h1').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
   </script>
 </body>
 </html>
 <script>
   // Add a click event to the header to redirect to the homepage
-  document.querySelector('header h1').addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
+ 
