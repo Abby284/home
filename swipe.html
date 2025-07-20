@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwipeFlix 🎬</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #111, #333);
+      color: #fff;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      color: #ff4b5c;
+      margin: 0;
+    }
+    .login-container, .mood-container, .card-container {
+      width: 90%;
+      max-width: 420px;
+      background: #222;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      text-align: center;
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    input, select, button {
+      width: 100%;
+      margin: 12px 0;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+    input, select {
+      background: #444;
+      color: #fff;
+    }
+    button {
+      background-color: #ff4b5c;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #ff1c3c;
+    }
+    .card {
+      background: #fff;
+      color: #000;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+      width: 100%;
+      height: auto;
+      animation: fadeIn 0.4s ease;
+    }
+    .card img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .swipe-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    .swipe-buttons button {
+      width: 48%;
+      background: #3f51b5;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .swipe-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header onclick="goHome()">
+    <h1>SwipeFlix 🎬</h1>
+  </header>
+
+  <div class="login-container active" id="loginContainer">
+    <input type="email" id="email" placeholder="Enter email" required>
+    <input type="password" id="password" placeholder="Enter password" required>
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <div class="mood-container" id="moodContainer">
+    <select id="moodSelect">
+      <option value="happy">Happy</option>
+      <option value="sad">Sad</option>
+      <option value="romantic">Romantic</option>
+      <option value="thrilling">Thrilling</option>
+      <option value="violent">Violent</option>
+      <option value="horny">Horny</option>
+    </select>
+    <button onclick="submitMood()">Submit Mood</button>
+  </div>
+
+  <div class="card-container" id="cardContainer">
+    <div class="card" id="movieCard">Loading...</div>
+  </div>
+
+  <script>
+    const BASE_URL = 'https://api.themoviedb.org/3';
+    const API_KEY = '0d056e1910c8b138b66596088c28472c';
+    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+
+    let mood = '';
+    let page = 1;
+    let currentIndex = 0;
+    let movies = [];
+    let shownIds = new Set();
+
+    const genreMap = {
+      happy: [35, 16],
+      sad: [18],
+      romantic: [10749],
+      thrilling: [53, 28],
+      violent: [27, 28, 80],
+      horny: [10749, 18]
+    };
+
+    function loginUser() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      if (email && password) {
+        localStorage.setItem('userEmail', email);
+        document.getElementById('loginContainer').classList.remove('active');
+        document.getElementById('moodContainer').classList.add('active');
+      } else {
+        alert("Please enter valid credentials.");
+      }
+    }
+
+    function submitMood() {
+      mood = document.getElementById('moodSelect').value;
+      localStorage.setItem('lastMood', mood);
+      document.getElementById('moodContainer').classList.remove('active');
+      document.getElementById('cardContainer').classList.add('active');
+      page = 1;
+      currentIndex = 0;
+      shownIds.clear();
+      movies = [];
+      fetchMovies();
+    }
+
+    function fetchMovies() {
+      const genres = genreMap[mood] || [18];
+      const genreParam = genres.map(g => `with_genres=${g}`).join('&');
+
+      fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&${genreParam}&sort_by=popularity.desc&include_adult=${mood === 'horny'}&page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.results || data.results.length === 0) {
+            document.getElementById('movieCard').innerText = 'No more movies found.';
+            return;
+          }
+          const newMovies = data.results.filter(m => !shownIds.has(m.id));
+          if (newMovies.length === 0) {
+            page++;
+            fetchMovies();
+            return;
+          }
+          movies = movies.concat(newMovies);
+          showMovie();
+        })
+        .catch(error => {
+          console.error('Error fetching movies:', error);
+          document.getElementById('movieCard').innerText = 'Error loading movies.';
+        });
+    }
+
+    function showMovie() {
+      const card = document.getElementById('movieCard');
+      if (currentIndex >= movies.length) {
+        page++;
+        fetchMovies();
+        return;
+      }
+      const movie = movies[currentIndex];
+      shownIds.add(movie.id);
+      card.innerHTML = `
+        <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" onclick="redirectToBooking('${movie.title}')">
+        <h3>${movie.title}</h3>
+        <p>${movie.overview || 'No description available.'}</p>
+        <div class="swipe-buttons">
+          <button onclick="dislikeMovie()">Dislike</button>
+          <button onclick="likeMovie()">Like</button>
+        </div>
+      `;
+      card.ontouchstart = handleTouchStart;
+      card.ontouchmove = handleTouchMove;
+      card.ontouchend = handleTouchEnd;
+    }
+
+    function redirectToBooking(title) {
+      const encodedTitle = encodeURIComponent(title + ' movie tickets');
+      const region = (navigator.language || 'en-IN').toLowerCase();
+      const base = region.includes('in') ? 'https://in.bookmyshow.com/explore/movies' : `https://www.google.com/search?q=${encodedTitle}`;
+      window.open(base, '_blank');
+    }
+
+    function goHome() {
+      window.location.reload();
+    }
+
+    let xStart = null;
+    function handleTouchStart(e) {
+      xStart = e.touches[0].clientX;
+    }
+    function handleTouchMove(e) {
+      if (!xStart) return;
+      const xEnd = e.touches[0].clientX;
+      const diff = xStart - xEnd;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) dislikeMovie(); else likeMovie();
+        xStart = null;
+      }
+    }
+    function handleTouchEnd() { xStart = null; }
+
+    function likeMovie() { currentIndex++; showMovie(); }
+    function dislikeMovie() { currentIndex++; showMovie(); }
+
+    window.onload = () => {
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail) {
+        document.getElementById('loginContainer').classList.remove('active');
+        document.getElementById('moodContainer').classList.add('active');
+      }
+    };
+  </script>
+</body>
+</html>
