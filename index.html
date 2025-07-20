@@ -1,153 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SwipeFlix 🎬</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Orbitron', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwipeFlix 🎬</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
 
-    body {
-      background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
-      color: #f0f0f0;
-      overflow-x: hidden;
-    }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #121212;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: #101010;
-      box-shadow: 0 0 15px rgba(255, 0, 150, 0.3);
-    }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff3c57;
+            cursor: pointer;
+        }
 
-    .logo {
-      color: #ff2c7d;
-      font-size: 1.8rem;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
+        .login-button {
+            background-color: #ff3c57;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-    .logo:hover {
-      transform: scale(1.1);
-    }
+        .login-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #ff3c57;
+        }
 
-    .btn {
-      background-color: #22c55e;
-      border: none;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+        section {
+            padding: 2rem;
+        }
 
-    .btn:hover {
-      background-color: #16a34a;
-      box-shadow: 0 0 12px #16a34a;
-    }
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid #ff3c57;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
 
-    .section {
-      margin: 2rem;
-    }
+        .movie-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            scrollbar-width: none;
+        }
 
-    h2 {
-      margin-bottom: 1rem;
-      color: #ff70a6;
-      text-shadow: 0 0 5px #ff2c7d;
-    }
+        .movie-container::-webkit-scrollbar {
+            display: none;
+        }
 
-    .movie-slider {
-      display: flex;
-      overflow-x: auto;
-      gap: 1rem;
-      scroll-snap-type: x mandatory;
-    }
+        .movie-container::after {
+            content: '→';
+            color: #ff3c57;
+            font-size: 2rem;
+            align-self: center;
+            margin-left: 1rem;
+            animation: bounceArrow 1s infinite;
+        }
 
-    .movie-slider::-webkit-scrollbar {
-      display: none;
-    }
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
 
-    .movie {
-      flex: 0 0 auto;
-      width: 200px;
-      background: #1e1e1e;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(255, 0, 100, 0.4);
-      transition: transform 0.3s ease;
-      scroll-snap-align: center;
-    }
+        .movie {
+            position: relative;
+            flex: 0 0 auto;
+            width: 200px;
+            height: 300px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 60, 87, 0.3);
+            transition: transform 0.3s ease;
+        }
 
-    .movie:hover {
-      transform: scale(1.05);
-    }
+        .movie:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(255, 60, 87, 0.7);
+        }
 
-    .movie img {
-      width: 100%;
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
-    }
+        .movie img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-    .movie-title {
-      padding: 0.5rem;
-      text-align: center;
-      font-size: 1rem;
-      color: #ccc;
-    }
-  </style>
+        .movie-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .movie:hover .movie-info {
+            opacity: 1;
+        }
+
+        .rec-btn {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .rec-btn button {
+            padding: 1rem 2rem;
+            background-color: #00c853;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 200, 83, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .rec-btn button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00c853;
+        }
+    </style>
 </head>
+
 <body>
-  <header>
-    <div class="logo" onclick="location.href='index.html'">SwipeFlix 🎬</div>
-    <button class="btn" onclick="location.href='Recommendations.html'">Login & Mood 🎭</button>
-  </header>
+    <header>
+        <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
+        <button class="login-button">Login & Mood 🎭</button>
+    </header>
 
-  <div class="section">
-    <h2>Now Showing 🍿</h2>
-    <div class="movie-slider" id="nowPlaying"></div>
-  </div>
+    <section>
+        <h2>Now Showing Near You 🍿</h2>
+        <div class="movie-container" id="nowShowing"></div>
 
-  <div class="section">
-    <h2>Upcoming Releases 🎥</h2>
-    <div class="movie-slider" id="upcoming"></div>
-  </div>
+        <h2>Upcoming Releases 🎥</h2>
+        <div class="movie-container" id="upcoming"></div>
 
-  <script>
-    const API_KEY = '0d056e1910c8b138b66596088c28472c';
-    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+        <div class="rec-btn">
+            <button onclick="goToRecommendations()">🎯 Get Movie Recommendations</button>
+        </div>
+    </section>
 
-    function createMovieCard(movie) {
-      const div = document.createElement('div');
-      div.classList.add('movie');
-      div.innerHTML = `
-        <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}">
-        <div class="movie-title">${movie.title}</div>
-      `;
-      return div;
-    }
+    <script>
+        const API_KEY = '0d056e1910c8b138b66596088c28472c';
+        const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
-    function loadMovies(url, containerId) {
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById(containerId);
-          data.results.forEach(movie => {
-            if (movie.poster_path) container.appendChild(createMovieCard(movie));
-          });
-        });
-    }
+        async function fetchMovies(url, containerId) {
+            const res = await fetch(url);
+            const data = await res.json();
+            const container = document.getElementById(containerId);
 
-    // Use region=IN and language=hi-IN for Indian & regional content
-    loadMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=hi-IN&region=IN`, 'nowPlaying');
-    loadMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=hi-IN&region=IN`, 'upcoming');
-  </script>
+            data.results.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.classList.add('movie');
+
+                const img = document.createElement('img');
+                img.src = IMAGE_BASE + movie.poster_path;
+
+                const infoDiv = document.createElement('div');
+                infoDiv.classList.add('movie-info');
+                infoDiv.innerHTML = `
+                    ⭐ ${movie.vote_average.toFixed(1)}<br>
+                    🗣️ ${movie.original_language.toUpperCase()}<br>
+                    📅 ${movie.release_date || 'N/A'}
+                `;
+
+                movieDiv.appendChild(img);
+                movieDiv.appendChild(infoDiv);
+                container.appendChild(movieDiv);
+            });
+        }
+
+        fetchMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`, 'nowShowing');
+        fetchMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`, 'upcoming');
+
+        function goToRecommendations() {
+            window.location.href = 'Recommendations.html';
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
+
 </html>
