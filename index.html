@@ -2,123 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SwipeFlix 🎬</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>SwipeFlix 🎬</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+
     body {
-      background: linear-gradient(to bottom, #0f0f0f, #1c1c1c);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+      color: #f0f0f0;
+      overflow-x: hidden;
     }
 
-    .glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #101010;
+      box-shadow: 0 0 15px rgba(255, 0, 150, 0.3);
     }
 
-    .poster {
-      transition: transform 0.4s ease, box-shadow 0.3s ease;
-    }
-
-    .poster:hover {
-      transform: rotateY(5deg) scale(1.03);
-      box-shadow: 0 20px 40px rgba(255, 0, 100, 0.3);
-    }
-
-    .neon-button {
-      background: linear-gradient(145deg, #12c2e9, #c471ed, #f64f59);
-      color: white;
-      font-weight: bold;
-      box-shadow: 0 0 10px #f64f59, 0 0 20px #c471ed;
-    }
-
-    .section-header {
-      color: white;
+    .logo {
+      color: #ff2c7d;
       font-size: 1.8rem;
-      font-weight: 700;
-      text-shadow: 0 0 5px #ff3cac;
+      cursor: pointer;
+      transition: transform 0.3s ease;
     }
 
-    .fade-in {
-      opacity: 0;
-      animation: fade 1s forwards;
+    .logo:hover {
+      transform: scale(1.1);
     }
 
-    @keyframes fade {
-      to {
-        opacity: 1;
-      }
+    .btn {
+      background-color: #22c55e;
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #16a34a;
+      box-shadow: 0 0 12px #16a34a;
+    }
+
+    .section {
+      margin: 2rem;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      color: #ff70a6;
+      text-shadow: 0 0 5px #ff2c7d;
+    }
+
+    .movie-slider {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      scroll-snap-type: x mandatory;
+    }
+
+    .movie-slider::-webkit-scrollbar {
+      display: none;
+    }
+
+    .movie {
+      flex: 0 0 auto;
+      width: 200px;
+      background: #1e1e1e;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255, 0, 100, 0.4);
+      transition: transform 0.3s ease;
+      scroll-snap-align: center;
+    }
+
+    .movie:hover {
+      transform: scale(1.05);
+    }
+
+    .movie img {
+      width: 100%;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+
+    .movie-title {
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 1rem;
+      color: #ccc;
     }
   </style>
 </head>
-
-<body class="text-white min-h-screen">
-  <!-- Navbar -->
-  <header class="glass flex justify-between items-center p-6 shadow-lg">
-    <h1 class="text-4xl font-bold text-pink-500">SwipeFlix 🎬</h1>
-    <a href="login.html">
-      <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-md transition">
-        Login & Mood 🎭🥰
-      </button>
-    </a>
+<body>
+  <header>
+    <div class="logo" onclick="location.href='index.html'">SwipeFlix 🎬</div>
+    <button class="btn" onclick="location.href='Recommendations.html'">Login & Mood 🎭</button>
   </header>
 
-  <main class="p-8 space-y-12">
-    <!-- Now Showing -->
-    <section>
-      <h2 class="section-header mb-4">Now Showing Near You 🍿</h2>
-      <div id="nowPlaying" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
-    </section>
+  <div class="section">
+    <h2>Now Showing 🍿</h2>
+    <div class="movie-slider" id="nowPlaying"></div>
+  </div>
 
-    <!-- Upcoming -->
-    <section>
-      <h2 class="section-header mb-4">Upcoming Releases 🎥</h2>
-      <div id="upcoming" class="grid grid-cols-2 md:grid-cols-4 gap-6 fade-in"></div>
-    </section>
-
-    <!-- Button -->
-    <div class="flex justify-center mt-10">
-      <a href="Recommendations.html">
-        <button class="neon-button px-6 py-3 rounded-xl hover:scale-105 transition transform duration-300">
-          🎯 Get Movie Recommendations
-        </button>
-      </a>
-    </div>
-  </main>
+  <div class="section">
+    <h2>Upcoming Releases 🎥</h2>
+    <div class="movie-slider" id="upcoming"></div>
+  </div>
 
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
-    async function fetchMovies(endpoint) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${endpoint}?api_key=${API_KEY}&language=en-IN`);
-      const data = await res.json();
-      return data.results;
-    }
-
-    function createPosterCard(movie) {
-      return `
-        <a href="https://in.bookmyshow.com/explore/movies/${movie.title.replace(/\s+/g, '-').toLowerCase()}" target="_blank">
-          <div class="poster bg-zinc-900 rounded-xl overflow-hidden shadow-lg cursor-pointer transform hover:scale-105 transition">
-            <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" class="w-full h-72 object-cover rounded-t-xl">
-            <div class="p-3 text-sm font-semibold text-center">${movie.title}</div>
-          </div>
-        </a>
+    function createMovieCard(movie) {
+      const div = document.createElement('div');
+      div.classList.add('movie');
+      div.innerHTML = `
+        <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}">
+        <div class="movie-title">${movie.title}</div>
       `;
+      return div;
     }
 
-    async function loadMovies() {
-      const nowPlaying = await fetchMovies('now_playing');
-      const upcoming = await fetchMovies('upcoming');
-
-      document.getElementById('nowPlaying').innerHTML = nowPlaying.slice(0, 8).map(createPosterCard).join('');
-      document.getElementById('upcoming').innerHTML = upcoming.slice(0, 8).map(createPosterCard).join('');
+    function loadMovies(url, containerId) {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById(containerId);
+          data.results.forEach(movie => {
+            if (movie.poster_path) container.appendChild(createMovieCard(movie));
+          });
+        });
     }
 
-    loadMovies();
+    // Use region=IN and language=hi-IN for Indian & regional content
+    loadMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=hi-IN&region=IN`, 'nowPlaying');
+    loadMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=hi-IN&region=IN`, 'upcoming');
   </script>
 </body>
 </html>
