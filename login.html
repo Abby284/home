@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SwipeFlix</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1f1f1f, #3a3a3a);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-container {
+      background: #2c2c2c;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #ff4b5c;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #ff4b5c;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e43e4b;
+    }
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      color: #ccc;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login to SwipeFlix 🎭</h2>
+    <form onsubmit="event.preventDefault(); window.location.href='Recommendations.html';">
+      <input type="text" placeholder="Username" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Continue to Mood Selector</button>
+    </form>
+    <a class="back-link" href="index.html">⬅ Back to Home</a>
+  </div>
+</body>
+</html>
