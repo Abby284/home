@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwipeFlix - Recommendations</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f0f0f;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    header {
+      width: 100%;
+      padding: 10px 20px;
+      background-color: #111;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    header h1 {
+      color: #ff4b5c;
+      cursor: pointer;
+    }
+    .card {
+      position: relative;
+      width: 300px;
+      height: 450px;
+      margin-top: 50px;
+      background-color: #1e1e1e;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(255, 75, 92, 0.3);
+      background-size: cover;
+      background-position: center;
+      transition: all 0.3s ease-in-out;
+    }
+    .card-info {
+      position: absolute;
+      bottom: 0;
+      background: linear-gradient(to top, #000000cc, transparent);
+      width: 100%;
+      padding: 20px;
+      color: white;
+    }
+    .swipe-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    .swipe-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      border: none;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    .dislike { background: #ff4b5c; }
+    .like { background: #28a745; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 onclick="window.location.href='index.html'">SwipeFlix 🎬</h1>
+  </header>
+  <div class="card" id="movieCard">
+    <div class="card-info">
+      <h2 id="movieTitle"></h2>
+      <p id="movieOverview"></p>
+    </div>
+  </div>
+  <div class="swipe-buttons">
+    <button class="swipe-btn dislike" onclick="handleSwipe(false)">❌</button>
+    <button class="swipe-btn like" onclick="handleSwipe(true)">❤️</button>
+  </div>
+
+  <script>
+    const API_KEY = '0d056e1910c8b138b66596088c28472c';
+    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+    let movies = [];
+    let current = 0;
+
+    async function loadRecommendations() {
+      const mood = localStorage.getItem('userMood') || 'happy';
+      const genreMap = {
+        happy: [35, 10751],
+        sad: [18],
+        angry: [28, 53],
+        romantic: [10749],
+        horror: [27],
+        violence: [80, 53],
+        horny: [10749, 18],
+      };
+      const genres = genreMap[mood] || [35];
+      const genreString = genres.join(',');
+
+      const response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreString}&sort_by=popularity.desc&page=1`);
+      const data = await response.json();
+      movies = data.results;
+      showMovie();
+    }
+
+    function showMovie() {
+      if (current >= movies.length) {
+        document.getElementById('movieCard').innerHTML = '<div class="card-info"><h2>No more movies</h2></div>';
+        return;
+      }
+      const movie = movies[current];
+      const card = document.getElementById('movieCard');
+      card.style.backgroundImage = `url('${IMAGE_BASE + movie.poster_path}')`;
+      document.getElementById('movieTitle').innerText = movie.title;
+      document.getElementById('movieOverview').innerText = movie.overview.substring(0, 100) + '...';
+    }
+
+    function handleSwipe(liked) {
+      const movie = movies[current];
+      console.log(liked ? 'Liked' : 'Disliked', movie.title);
+      // Save feedback to localStorage or backend
+      current++;
+      showMovie();
+    }
+
+    loadRecommendations();
+  </script>
+</body>
+</html>
