@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login & Mood - SwipeFlix</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     body {
       margin: 0;
@@ -96,6 +97,10 @@
     button[type="submit"]:hover {
       background: #e43e4b;
     }
+    .google-btn {
+      margin-top: 20px;
+      text-align: center;
+    }
     .back-link {
       display: block;
       margin-top: 20px;
@@ -129,6 +134,17 @@
 
       <button type="submit">Continue</button>
     </form>
+
+    <div class="google-btn">
+      <div id="g_id_onload"
+           data-client_id="YOUR_GOOGLE_CLIENT_ID"
+           data-context="signin"
+           data-ux_mode="popup"
+           data-callback="handleGoogleSignIn">
+      </div>
+      <div class="g_id_signin" data-type="standard"></div>
+    </div>
+
     <a class="back-link" href="index.html">⬅ Back to Home</a>
   </div>
 
@@ -148,8 +164,25 @@
         alert('Please select your mood!');
         return;
       }
-      localStorage.setItem('username', document.getElementById('username').value);
-      localStorage.setItem('mood', selectedMood);
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Fake login logic
+      if (username && password) {
+        localStorage.setItem('username', username);
+        localStorage.setItem('mood', selectedMood);
+        window.location.href = 'Recommendations.html';
+      } else {
+        alert('Invalid login!');
+      }
+    }
+
+    // Google Sign-in callback
+    function handleGoogleSignIn(response) {
+      const credential = response.credential;
+      // Typically decode JWT here, but fake login:
+      localStorage.setItem('username', 'GoogleUser');
+      localStorage.setItem('mood', selectedMood || 'Neutral');
       window.location.href = 'Recommendations.html';
     }
   </script>
