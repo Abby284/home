@@ -1,97 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recommendations - SwipeFlix</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinderjs/1.0.3/tinder.min.js"></script>
-  <style>
-    body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: #fff; overflow: hidden; }
-    header { display: flex; justify-content: space-between; padding: 1rem 2rem; background: #121212; }
-    .logo { font-size: 1.8rem; font-weight: bold; color: #ff3c57; }
-    .user-info { font-size: 1rem; color: #ccc; }
-    .tinder { position: relative; width: 100%; height: calc(100vh - 100px); display: flex; justify-content: center; align-items: center; }
-    .tinder--cards { position: relative; width: 320px; height: 480px; }
-    .tinder--card { position: absolute; width: 100%; height: 100%; background: #222; border-radius: 20px; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
-    .tinder--card img { width: 100%; height: 100%; object-fit: cover; }
-    .buttons { position: absolute; bottom: 30px; display: flex; justify-content: space-around; width: 200px; }
-    .buttons button { width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.5rem; transition: transform 0.2s ease; }
-    .buttons button:active { transform: scale(0.9); }
-    #nope { background: rgba(255,0,0,0.2); color: #ff4b5c; box-shadow: 0 0 15px #ff4b5c; }
-    #love { background: rgba(255,0,150,0.2); color: #ff3c92; box-shadow: 0 0 15px #ff3c92; }
-    .buttons button:hover { transform: scale(1.2); }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="logo">SwipeFlix 🎬</div>
-    <div class="user-info" id="userInfo"></div>
-  </header>
+<script>
+  const API_KEY = "0d056e1910c8b138b66596088c28472c";
+  const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
-  <div class="tinder">
-    <div class="tinder--cards" id="tinderCards"></div>
-    <div class="buttons">
-      <button id="nope"><i class="fas fa-times"></i></button>
-      <button id="love"><i class="fas fa-heart"></i></button>
-    </div>
-  </div>
+  const username = localStorage.getItem("username") || "Guest";
+  const mood = localStorage.getItem("mood") || "All";
+  document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
 
-  <script>
-    const API_KEY = "0d056e1910c8b138b66596088c28472c";
-    const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+  const moodGenreMap = {
+    "Happy": 35,        // Comedy
+    "Sad": 18,          // Drama
+    "Romantic": 10749,  // Romance
+    "Adventurous": 12,  // Adventure
+    "Violent": 28,      // Action
+    "Horny": 10749      // Romance
+  };
 
-    const username = localStorage.getItem("username") || "Guest";
-    const mood = localStorage.getItem("mood") || "All";
-    document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
+  const genreId = moodGenreMap[mood] || "";
+  let page = 1;
+  let loading = false;
 
-    const moodGenreMap = {
-      "Happy": 35,        // Comedy
-      "Sad": 18,          // Drama
-      "Romantic": 10749,  // Romance
-      "Adventurous": 12,  // Adventure
-      "Violent": 28,      // Action
-      "Horny": 10749      // Romance
-    };
+  async function fetchMovies() {
+    loading = true;
+    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}&with_genres=${genreId}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    page++;
+    loading = false;
+    return data.results;
+  }
 
-    const genreId = moodGenreMap[mood] || "";
+  function createCard(movie) {
+    const card = document.createElement("div");
+    card.className = "tinder--card";
+    card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
+    card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
+    return card;
+  }
 
-    async function fetchMovies() {
-      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&with_genres=${genreId}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.results;
+  async function loadCards() {
+    const cardsContainer = document.getElementById("tinderCards");
+    const movies = await fetchMovies();
+    movies.forEach(movie => {
+      if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
+    });
+  }
+
+  async function initCards() {
+    await loadCards();
+    let cards = document.querySelectorAll('.tinder--card');
+    let current = cards.length - 1;
+
+    function swipeCard(remove) {
+      if (current >= 0) {
+        cards[current--].remove();
+        if (current < 3 && !loading) loadCards();  // load more if low
+      }
     }
 
-    function createCard(movie) {
-      const card = document.createElement("div");
-      card.className = "tinder--card";
-      card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
-      card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
-      return card;
-    }
+    document.getElementById('nope').onclick = () => swipeCard(false);
+    document.getElementById('love').onclick = () => swipeCard(true);
+  }
 
-    async function initCards() {
-      const cardsContainer = document.getElementById("tinderCards");
-      cardsContainer.innerHTML = "";
-      const movies = await fetchMovies();
-
-      movies.forEach(movie => {
-        if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
-      });
-
-      const cards = document.querySelectorAll('.tinder--card');
-      let current = cards.length - 1;
-
-      document.getElementById('nope').onclick = () => {
-        if (current >= 0) cards[current--].remove();
-      };
-      document.getElementById('love').onclick = () => {
-        if (current >= 0) cards[current--].remove();
-      };
-    }
-
-    initCards();
-  </script>
-</body>
-</html>
+  initCards();
+</script>
