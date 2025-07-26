@@ -152,7 +152,7 @@
 <body>
     <header>
         <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
-        <button class="login-button">Login & Mood 🎭</button>
+        <button class="login-button" onclick="goToLogin()">Login & Mood 🎭</button>
     </header>
 
     <section>
@@ -199,6 +199,10 @@
 
         fetchMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`, 'nowShowing');
         fetchMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`, 'upcoming');
+
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
 
         function goToRecommendations() {
             window.location.href = 'Recommendations.html';
