@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - SwipeFlix</title>
+  <title>Login & Mood - SwipeFlix</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1f1f1f, #3a3a3a);
+      background: radial-gradient(circle at top, #1a1a1a, #0e0e0e);
       color: white;
       display: flex;
       justify-content: center;
@@ -16,28 +16,71 @@
       height: 100vh;
     }
     .login-container {
-      background: #2c2c2c;
+      background: rgba(30, 30, 30, 0.95);
       padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(255, 75, 92, 0.4);
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     h2 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       color: #ff4b5c;
+      font-size: 2rem;
     }
     input[type="text"],
     input[type="password"] {
       width: 100%;
-      padding: 15px;
-      margin: 10px 0 20px;
+      padding: 14px;
+      margin: 10px 0;
       border: none;
       border-radius: 8px;
       font-size: 1rem;
     }
-    button {
+    .mood-section {
+      text-align: center;
+      margin: 25px 0 10px;
+    }
+    .mood-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+    .mood-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    .mood-btn {
+      width: 70px;
+      height: 70px;
+      font-size: 2rem;
+      background: #222;
+      border: 2px solid transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .mood-btn:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 12px #ff4b5c;
+    }
+    .mood-btn.active {
+      border-color: #ff4b5c;
+      box-shadow: 0 0 15px #ff4b5c;
+    }
+    button[type="submit"] {
       width: 100%;
       padding: 15px;
       background: #ff4b5c;
@@ -48,8 +91,9 @@
       cursor: pointer;
       color: white;
       transition: background 0.3s;
+      margin-top: 25px;
     }
-    button:hover {
+    button[type="submit"]:hover {
       background: #e43e4b;
     }
     .back-link {
@@ -66,13 +110,48 @@
 </head>
 <body>
   <div class="login-container">
-    <h2>Login to SwipeFlix 🎭</h2>
-    <form onsubmit="event.preventDefault(); window.location.href='Recommendations.html';">
-      <input type="text" placeholder="Username" required>
-      <input type="password" placeholder="Password" required>
-      <button type="submit">Continue to Mood Selector</button>
+    <h2>SwipeFlix 🎭</h2>
+    <form onsubmit="submitForm(event)">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+
+      <div class="mood-section">
+        <div class="mood-title">What's your mood today?</div>
+        <div class="mood-options">
+          <button type="button" class="mood-btn" data-mood="Happy">😊</button>
+          <button type="button" class="mood-btn" data-mood="Sad">😢</button>
+          <button type="button" class="mood-btn" data-mood="Romantic">❤️</button>
+          <button type="button" class="mood-btn" data-mood="Adventurous">🏔️</button>
+          <button type="button" class="mood-btn" data-mood="Violent">🔪</button>
+          <button type="button" class="mood-btn" data-mood="Horny">🔥</button>
+        </div>
+      </div>
+
+      <button type="submit">Continue</button>
     </form>
     <a class="back-link" href="index.html">⬅ Back to Home</a>
   </div>
+
+  <script>
+    let selectedMood = null;
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedMood = btn.dataset.mood;
+      });
+    });
+
+    function submitForm(e) {
+      e.preventDefault();
+      if (!selectedMood) {
+        alert('Please select your mood!');
+        return;
+      }
+      localStorage.setItem('username', document.getElementById('username').value);
+      localStorage.setItem('mood', selectedMood);
+      window.location.href = 'Recommendations.html';
+    }
+  </script>
 </body>
 </html>
