@@ -80,8 +80,13 @@
         }
 
         @keyframes bounceArrow {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(5px); }
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
         }
 
         .movie {
@@ -152,7 +157,7 @@
 <body>
     <header>
         <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
-        <button class="login-button" onclick="goToLogin()">Login & Mood 🎭</button>
+        <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
     </header>
 
     <section>
@@ -200,10 +205,6 @@
         fetchMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`, 'nowShowing');
         fetchMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`, 'upcoming');
 
-        function goToLogin() {
-            window.location.href = 'login.html';
-        }
-
         function goToRecommendations() {
             window.location.href = 'Recommendations.html';
         }
@@ -213,5 +214,4 @@
         }
     </script>
 </body>
-
 </html>
