@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwipeFlix </title>
+    <title>SwipeFlix 🎬</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -20,7 +19,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 2rem;
-            background-color: #121212;
+            background: #121212;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
 
@@ -32,7 +31,7 @@
         }
 
         .login-button {
-            background-color: #ff3c57;
+            background: #ff3c57;
             color: #fff;
             padding: 0.5rem 1rem;
             border-radius: 12px;
@@ -125,11 +124,10 @@
         }
     </style>
 </head>
-
 <body>
     <header>
         <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
-        <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
+        <button class="login-button" onclick="goLogin()">Login & Mood 🎭</button>
     </header>
 
     <section>
@@ -145,46 +143,51 @@
         const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
         async function fetchMovies(url, containerId) {
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
+            const res = await fetch(url);
+            const data = await res.json();
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
 
-                if (!data.results || data.results.length === 0) {
-                    document.getElementById(containerId).innerHTML = `<p style="color:#888;">No movies found</p>`;
-                    return;
-                }
+            data.results.forEach(movie => {
+                const movieDiv = document.createElement('div');
+                movieDiv.classList.add('movie');
 
-                const container = document.getElementById(containerId);
-                container.innerHTML = ""; 
+                const img = document.createElement('img');
+                img.src = movie.poster_path ? IMAGE_BASE + movie.poster_path : 'fallback.jpg';
 
-                data.results.forEach(movie => {
-                    const movieDiv = document.createElement('div');
-                    movieDiv.classList.add('movie');
-                    movieDiv.onclick = () => window.open("https://in.bookmyshow.com/explore/home", "_blank");
+                const infoDiv = document.createElement('div');
+                infoDiv.classList.add('movie-info');
+                infoDiv.innerHTML = `
+                    ⭐ ${movie.vote_average.toFixed(1)}<br>
+                    🗣️ ${movie.original_language.toUpperCase()}<br>
+                    📅 ${movie.release_date || 'N/A'}
+                `;
 
-                    const img = document.createElement('img');
-                    img.src = IMAGE_BASE + movie.poster_path;
+                movieDiv.appendChild(img);
+                movieDiv.appendChild(infoDiv);
 
-                    const infoDiv = document.createElement('div');
-                    infoDiv.classList.add('movie-info');
-                    infoDiv.innerHTML = `
-                        ⭐ ${movie.vote_average.toFixed(1)}<br>
-                        🗣️ ${movie.original_language.toUpperCase()}<br>
-                        📅 ${movie.release_date || 'N/A'}
-                    `;
+                movieDiv.onclick = () =>
+                    window.open(`https://in.bookmyshow.com/explore/movies-${movie.title.replace(/\s+/g,'-')}`, '_blank');
 
-                    movieDiv.appendChild(img);
-                    movieDiv.appendChild(infoDiv);
-                    container.appendChild(movieDiv);
-                });
-            } catch (err) {
-                console.error(err);
-                document.getElementById(containerId).innerHTML = `<p style="color:red;">Failed to load movies</p>`;
-            }
+                container.appendChild(movieDiv);
+            });
         }
 
-        fetchMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-US&page=1`, 'nowShowing');
-        fetchMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1`, 'upcoming');
+        // Fetch Indian + Regional Movies (Now Showing)
+        fetchMovies(
+            `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&with_original_language=hi,te,ta,ml,kn,pa,bn&sort_by=release_date.desc`,
+            'nowShowing'
+        );
+
+        // Fetch Upcoming Movies (India + Regional)
+        fetchMovies(
+            `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&region=IN&language=hi-IN`,
+            'upcoming'
+        );
+
+        function goLogin() {
+            window.location.href = 'login.html';
+        }
 
         function goHome() {
             window.location.href = 'index.html';
