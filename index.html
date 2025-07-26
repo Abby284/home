@@ -1,197 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwipeFlix 🎬</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-            overflow-x: hidden;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background: #121212;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ff3c57;
-            cursor: pointer;
-        }
-
-        .login-button {
-            background: #ff3c57;
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .login-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px #ff3c57;
-        }
-
-        section {
-            padding: 2rem;
-        }
-
-        h2 {
-            font-size: 2rem;
-            border-bottom: 2px solid #ff3c57;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .movie-container {
-            display: flex;
-            overflow-x: auto;
-            gap: 1rem;
-            padding-bottom: 1rem;
-            scrollbar-width: none;
-        }
-
-        .movie-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .movie-container::after {
-            content: '→';
-            color: #ff3c57;
-            font-size: 2rem;
-            align-self: center;
-            margin-left: 1rem;
-            animation: bounceArrow 1s infinite;
-        }
-
-        @keyframes bounceArrow {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(5px); }
-        }
-
-        .movie {
-            position: relative;
-            flex: 0 0 auto;
-            width: 200px;
-            height: 300px;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(255, 60, 87, 0.3);
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-
-        .movie:hover {
-            transform: scale(1.08);
-            box-shadow: 0 0 25px rgba(255, 60, 87, 0.7);
-        }
-
-        .movie img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .movie-info {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            font-size: 0.85rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .movie:hover .movie-info {
-            opacity: 1;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwipeFlix 🎬</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #121212;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #ff3c57;
+      cursor: pointer;
+    }
+    .login-button {
+      background-color: #ff3c57;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .login-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #ff3c57;
+    }
+    section { padding: 2rem; }
+    h2 {
+      font-size: 2rem;
+      border-bottom: 2px solid #ff3c57;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .movie-container {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      scrollbar-width: none;
+    }
+    .movie-container::-webkit-scrollbar { display: none; }
+    .movie-container::after {
+      content: '→';
+      color: #ff3c57;
+      font-size: 2rem;
+      align-self: center;
+      margin-left: 1rem;
+      animation: bounceArrow 1s infinite;
+    }
+    @keyframes bounceArrow {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+    .movie {
+      position: relative;
+      flex: 0 0 auto;
+      width: 200px;
+      height: 300px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(255, 60, 87, 0.3);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .movie:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px rgba(255, 60, 87, 0.7);
+    }
+    .movie img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .movie-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .movie:hover .movie-info { opacity: 1; }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
-        <button class="login-button" onclick="goLogin()">Login & Mood 🎭</button>
-    </header>
+  <header>
+    <div class="logo" onclick="goHome()">SwipeFlix 🎬</div>
+    <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
+  </header>
 
-    <section>
-        <h2>Now Showing Near You 🍿</h2>
-        <div class="movie-container" id="nowShowing"></div>
+  <section>
+    <h2>Now Showing Near You 🍿</h2>
+    <div class="movie-container" id="nowShowing"></div>
 
-        <h2>Upcoming Releases 🎥</h2>
-        <div class="movie-container" id="upcoming"></div>
-    </section>
+    <h2>Upcoming Releases 🎥</h2>
+    <div class="movie-container" id="upcoming"></div>
+  </section>
 
-    <script>
-        const API_KEY = '0d056e1910c8b138b66596088c28472c';
-        const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+  <script>
+    const API_KEY = '0d056e1910c8b138b66596088c28472c';
+    const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
-        async function fetchMovies(url, containerId) {
-            const res = await fetch(url);
-            const data = await res.json();
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
+    async function fetchMovies(url, containerId) {
+      const res = await fetch(url);
+      const data = await res.json();
+      const container = document.getElementById(containerId);
+      container.innerHTML = ''; // clear previous
 
-            data.results.forEach(movie => {
-                const movieDiv = document.createElement('div');
-                movieDiv.classList.add('movie');
+      data.results.forEach(movie => {
+        const movieDiv = document.createElement('div');
+        movieDiv.classList.add('movie');
+        movieDiv.onclick = () => {
+          window.open(`https://in.bookmyshow.com/explore/movies`, '_blank');
+        };
 
-                const img = document.createElement('img');
-                img.src = movie.poster_path ? IMAGE_BASE + movie.poster_path : 'fallback.jpg';
+        const img = document.createElement('img');
+        img.src = IMAGE_BASE + movie.poster_path;
 
-                const infoDiv = document.createElement('div');
-                infoDiv.classList.add('movie-info');
-                infoDiv.innerHTML = `
-                    ⭐ ${movie.vote_average.toFixed(1)}<br>
-                    🗣️ ${movie.original_language.toUpperCase()}<br>
-                    📅 ${movie.release_date || 'N/A'}
-                `;
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('movie-info');
+        infoDiv.innerHTML = `
+            ⭐ ${movie.vote_average.toFixed(1)}<br>
+            🗣️ ${movie.original_language.toUpperCase()}<br>
+            📅 ${movie.release_date || 'N/A'}
+        `;
 
-                movieDiv.appendChild(img);
-                movieDiv.appendChild(infoDiv);
+        movieDiv.appendChild(img);
+        movieDiv.appendChild(infoDiv);
+        container.appendChild(movieDiv);
+      });
+    }
 
-                movieDiv.onclick = () =>
-                    window.open(`https://in.bookmyshow.com/explore/movies-${movie.title.replace(/\s+/g,'-')}`, '_blank');
+    // Fetch Indian region movies
+    fetchMovies(
+      `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`,
+      'nowShowing'
+    );
 
-                container.appendChild(movieDiv);
-            });
-        }
+    fetchMovies(
+      `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`,
+      'upcoming'
+    );
 
-        // Fetch Indian + Regional Movies (Now Showing)
-        fetchMovies(
-            `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&region=IN&with_original_language=hi,te,ta,ml,kn,pa,bn&sort_by=release_date.desc`,
-            'nowShowing'
-        );
-
-        // Fetch Upcoming Movies (India + Regional)
-        fetchMovies(
-            `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&region=IN&language=hi-IN`,
-            'upcoming'
-        );
-
-        function goLogin() {
-            window.location.href = 'login.html';
-        }
-
-        function goHome() {
-            window.location.href = 'index.html';
-        }
-    </script>
+    function goHome() { window.location.href = 'index.html'; }
+  </script>
 </body>
 </html>
