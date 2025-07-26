@@ -3,248 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SwipeFlix Recommendations</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Recommendations - SwipeFlix</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinderjs/1.0.3/tinder.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
-      color: white;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-    }
-
-    header {
-      width: 100%;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(20, 20, 20, 0.8);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
-      position: fixed;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #ff3c57;
-      cursor: pointer;
-    }
-
-    .user-info {
-      font-size: 1rem;
-      color: #ccc;
-    }
-
-    .cards-container {
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 100px);
-      margin-top: 100px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      perspective: 1000px;
-    }
-
-    .card {
-      position: absolute;
-      width: 320px;
-      height: 450px;
-      border-radius: 20px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      will-change: transform;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      overflow: hidden;
-      transform-style: preserve-3d;
-    }
-
-    .card:hover {
-      transform: rotateY(15deg) scale(1.05);
-    }
-
-    .card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-      z-index: 1;
-    }
-
-    .card-content {
-      padding: 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .card h3 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: #fff;
-    }
-
-    .card p {
-      font-size: 0.9rem;
-      color: #ddd;
-    }
-
-    .actions {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-evenly;
-      width: 100%;
-    }
-
-    .btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.1);
-    }
+    body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', sans-serif; color: #fff; overflow: hidden; }
+    header { display: flex; justify-content: space-between; padding: 1rem 2rem; background: #121212; }
+    .logo { font-size: 1.8rem; font-weight: bold; color: #ff3c57; }
+    .user-info { font-size: 1rem; color: #ccc; }
+    .tinder { position: relative; width: 100%; height: calc(100vh - 100px); display: flex; justify-content: center; align-items: center; }
+    .tinder--cards { position: relative; width: 320px; height: 480px; }
+    .tinder--card { position: absolute; width: 100%; height: 100%; background: #222; border-radius: 20px; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
+    .tinder--card img { width: 100%; height: 100%; object-fit: cover; }
+    .buttons { position: absolute; bottom: 30px; display: flex; justify-content: space-around; width: 200px; }
+    .buttons button { width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.5rem; transition: transform 0.2s ease; }
+    .buttons button:active { transform: scale(0.9); }
+    #nope { background: rgba(255,0,0,0.2); color: #ff4b5c; box-shadow: 0 0 15px #ff4b5c; }
+    #love { background: rgba(255,0,150,0.2); color: #ff3c92; box-shadow: 0 0 15px #ff3c92; }
+    .buttons button:hover { transform: scale(1.2); }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo" onclick="window.location.href='index.html'">SwipeFlix 🎬</div>
-    <div class="user-info" id="user-info"></div>
+    <div class="logo">SwipeFlix 🎬</div>
+    <div class="user-info" id="userInfo"></div>
   </header>
 
-  <div class="cards-container" id="cards-container"></div>
-
-  <div class="actions">
-    <div class="btn" onclick="manualSwipe('left')"><i class="fas fa-times"></i></div>
-    <div class="btn" onclick="manualSwipe('right')"><i class="fas fa-heart"></i></div>
+  <div class="tinder">
+    <div class="tinder--cards" id="tinderCards"></div>
+    <div class="buttons">
+      <button id="nope"><i class="fas fa-times"></i></button>
+      <button id="love"><i class="fas fa-heart"></i></button>
+    </div>
   </div>
 
   <script>
-    const username = localStorage.getItem('username') || 'Guest';
-    const mood = localStorage.getItem('mood') || 'Happy';
-    document.getElementById('user-info').innerText = `${username} • Mood: ${mood}`;
-
     const API_KEY = "0d056e1910c8b138b66596088c28472c";
     const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
-    let currentIndex = 0;
-    let movies = [];
+
+    const username = localStorage.getItem("username") || "Guest";
+    const mood = localStorage.getItem("mood") || "All";
+    document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
+
+    const moodGenreMap = {
+      "Happy": 35,        // Comedy
+      "Sad": 18,          // Drama
+      "Romantic": 10749,  // Romance
+      "Adventurous": 12,  // Adventure
+      "Violent": 28,      // Action
+      "Horny": 10749      // Romance
+    };
+
+    const genreId = moodGenreMap[mood] || "";
 
     async function fetchMovies() {
-      const moodsMap = {
-        Happy: "35", 
-        Sad: "18", 
-        Romantic: "10749", 
-        Adventurous: "12", 
-        Violent: "28", 
-        Horny: "10749" 
-      };
-      const genreId = moodsMap[mood] || "28";
-      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&with_genres=${genreId}&primary_release_date.gte=1925-01-01&primary_release_date.lte=2025-12-31&with_original_language=en,hi,ta,te,ml,ko,fr,de,it,es`;
+      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&with_genres=${genreId}`;
       const res = await fetch(url);
       const data = await res.json();
-      movies = data.results;
-      loadCards();
+      return data.results;
     }
 
-    function loadCards() {
-      const container = document.getElementById('cards-container');
-      container.innerHTML = '';
-      movies.forEach((movie, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.backgroundImage = `url(${IMAGE_BASE + movie.poster_path})`;
-        card.innerHTML = `
-          <div class="card-content">
-            <h3>${movie.title}</h3>
-            <p>${movie.release_date || 'N/A'} • ⭐ ${movie.vote_average.toFixed(1)}</p>
-          </div>`;
-        card.dataset.index = index;
-        container.appendChild(card);
-        addSwipe(card);
-      });
+    function createCard(movie) {
+      const card = document.createElement("div");
+      card.className = "tinder--card";
+      card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
+      card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
+      return card;
     }
 
-    function addSwipe(card) {
-      let startX, currentX, isDragging = false;
+    async function initCards() {
+      const cardsContainer = document.getElementById("tinderCards");
+      cardsContainer.innerHTML = "";
+      const movies = await fetchMovies();
 
-      card.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-      });
-      card.addEventListener('touchmove', e => {
-        if (!isDragging) return;
-        currentX = e.touches[0].clientX - startX;
-        card.style.transform = `translateX(${currentX}px) rotate(${currentX / 10}deg)`;
-      });
-      card.addEventListener('touchend', () => {
-        isDragging = false;
-        handleSwipeEnd(card, currentX);
+      movies.forEach(movie => {
+        if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
       });
 
-      card.addEventListener('mousedown', e => {
-        startX = e.clientX;
-        isDragging = true;
-      });
-      card.addEventListener('mousemove', e => {
-        if (!isDragging) return;
-        currentX = e.clientX - startX;
-        card.style.transform = `translateX(${currentX}px) rotate(${currentX / 10}deg)`;
-      });
-      card.addEventListener('mouseup', () => {
-        isDragging = false;
-        handleSwipeEnd(card, currentX);
-      });
+      const cards = document.querySelectorAll('.tinder--card');
+      let current = cards.length - 1;
+
+      document.getElementById('nope').onclick = () => {
+        if (current >= 0) cards[current--].remove();
+      };
+      document.getElementById('love').onclick = () => {
+        if (current >= 0) cards[current--].remove();
+      };
     }
 
-    function handleSwipeEnd(card, diffX) {
-      if (diffX > 120) swipe('right', card);
-      else if (diffX < -120) swipe('left', card);
-      else card.style.transform = '';
-    }
-
-    function swipe(direction, card) {
-      card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-      card.style.transform = `translateX(${direction === 'right' ? 1000 : -1000}px) rotate(${direction === 'right' ? 30 : -30}deg)`;
-      card.style.opacity = '0';
-      setTimeout(() => card.remove(), 300);
-
-      const movie = movies[card.dataset.index];
-      if (direction === 'right') openMovieLink(movie);
-
-      currentIndex++;
-      if (currentIndex >= movies.length - 3) fetchMovies();
-    }
-
-    function manualSwipe(direction) {
-      const topCard = document.querySelector('.card:last-child');
-      if (topCard) swipe(direction, topCard);
-    }
-
-    function openMovieLink(movie) {
-      const query = encodeURIComponent(`${movie.title} watch online`);
-      window.open(`https://www.google.com/search?q=${query}`, "_blank");
-    }
-
-    fetchMovies();
+    initCards();
   </script>
 </body>
 </html>
