@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SwipeFlix 🎬</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
   <style>
     body {
       margin: 0;
@@ -13,6 +14,67 @@
       color: #fff;
       overflow-x: hidden;
     }
+
+    /* -------------------- INTRO ANIMATION -------------------- */
+    #introLogo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: #000;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+    #introLogo.hide { opacity: 0; pointer-events: none; }
+
+    .logo-svg {
+      width: 300px;
+      height: auto;
+    }
+    .logo-S {
+      fill: #ff3c57;
+      font-size: 80px;
+      font-weight: 900;
+      opacity: 0;
+      transform: scale(0.5);
+      animation: S-appear 1s forwards ease-out;
+    }
+    .logo-rest {
+      fill: white;
+      font-size: 60px;
+      font-weight: 600;
+      opacity: 0;
+      animation: rest-slide 1s forwards ease-out 0.8s;
+    }
+    @keyframes S-appear {
+      0% { opacity: 0; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes rest-slide {
+      0% { opacity: 0; transform: translateX(-30px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    .clap {
+      font-size: 3rem;
+      color: #ff3c57;
+      opacity: 0;
+      animation: clap-drop 1s ease forwards 1.3s;
+    }
+    @keyframes clap-drop {
+      from { transform: translateY(-30px) rotate(-20deg); opacity: 0; }
+      to { transform: translateY(0) rotate(0); opacity: 1; }
+    }
+    body.loaded header, body.loaded section { opacity: 1; transition: opacity 1s ease; }
+    body header, body section { opacity: 0; }
+
+    /* -------------------- HEADER -------------------- */
     header {
       display: flex;
       justify-content: space-between;
@@ -21,14 +83,14 @@
       background-color: #121212;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
-    .logo img {
-      height: 100px;
-      width:60px;
+    .logo-header {
+      display: flex;
+      align-items: center;
       cursor: pointer;
-      transition: transform 1s ease;
     }
-    .logo img:hover {
-      transform: scale(1.1);
+    .logo-header svg {
+      width: 160px;
+      height: auto;
     }
     .login-button {
       background-color: #ff3c57;
@@ -44,6 +106,8 @@
       transform: scale(1.05);
       box-shadow: 0 0 10px #ff3c57;
     }
+
+    /* -------------------- MOVIE SECTIONS -------------------- */
     section { padding: 2rem; }
     h2 {
       font-size: 2rem;
@@ -53,23 +117,13 @@
     }
     .movie-container {
       display: flex;
-      overflow-x: auto;
       gap: 1rem;
       padding-bottom: 1rem;
-      scrollbar-width: none;
+      animation: scrollMovies 40s linear infinite;
     }
-    .movie-container::-webkit-scrollbar { display: none; }
-    .movie-container::after {
-      content: '→';
-      color: #ff3c57;
-      font-size: 2rem;
-      align-self: center;
-      margin-left: 1rem;
-      animation: bounceArrow 1s infinite;
-    }
-    @keyframes bounceArrow {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(5px); }
+    @keyframes scrollMovies {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
     .movie {
       position: relative;
@@ -107,13 +161,27 @@
   </style>
 </head>
 <body>
+  <!-- Intro animation -->
+  <div id="introLogo">
+    <svg viewBox="0 0 500 100" class="logo-svg">
+      <text x="0" y="70" class="logo-S">S</text>
+      <text x="65" y="70" class="logo-rest">wipeFlix</text>
+    </svg>
+    <i class="fa-solid fa-clapperboard clap"></i>
+  </div>
+
+  <!-- HEADER -->
   <header>
-    <div class="logo" onclick="goHome()">
-      <img src="swipeflix.png" alt="SwipeFlix Logo" />
+    <div class="logo-header" onclick="goHome()">
+      <svg viewBox="0 0 500 100" class="logo-svg">
+        <text x="0" y="70" class="logo-S" style="opacity:1; transform:scale(1);">S</text>
+        <text x="65" y="70" class="logo-rest" style="opacity:1;">wipeFlix</text>
+      </svg>
     </div>
     <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
   </header>
 
+  <!-- MOVIE SECTIONS -->
   <section>
     <h2>Now Showing Near You 🍿</h2>
     <div class="movie-container" id="nowShowing"></div>
@@ -130,9 +198,11 @@
       const res = await fetch(url);
       const data = await res.json();
       const container = document.getElementById(containerId);
-      container.innerHTML = '';
+      container.innerHTML = ''; // clear previous
 
-      data.results.forEach(movie => {
+      // duplicate list for infinite scroll feel
+      const allMovies = [...data.results, ...data.results];
+      allMovies.forEach(movie => {
         const movieDiv = document.createElement('div');
         movieDiv.classList.add('movie');
         movieDiv.onclick = () => {
@@ -156,16 +226,27 @@
       });
     }
 
+    // Fetch Indian region movies
     fetchMovies(
       `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`,
       'nowShowing'
     );
+
     fetchMovies(
       `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`,
       'upcoming'
     );
 
     function goHome() { window.location.href = 'index.html'; }
+
+    // Intro animation
+    window.addEventListener("load", () => {
+      const intro = document.getElementById("introLogo");
+      setTimeout(() => {
+        intro.classList.add("hide");
+        document.body.classList.add("loaded");
+      }, 2500);
+    });
   </script>
 </body>
 </html>
