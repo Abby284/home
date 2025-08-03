@@ -1,65 +1,266 @@
-<script>
-  const API_KEY = "0d056e1910c8b138b66596088c28472c";
-  const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwipeFlix - Recommendations</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #111, #000);
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(20, 20, 20, 0.9);
+      box-shadow: 0 0 20px rgba(255, 75, 92, 0.4);
+    }
+    header h2 { color: #ff4b5c; margin: 0; }
+    header button {
+      padding: 0.5rem 1rem;
+      background: #ff4b5c;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tinder {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 100px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+    }
+    .tinder--card {
+      position: absolute;
+      width: 300px;
+      height: 450px;
+      border-radius: 15px;
+      background: #222;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(255, 75, 92, 0.3);
+      transition: transform 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .tinder--card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .buttons {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      gap: 40px;
+    }
+    .buttons button {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #nope {
+      background: rgba(255,0,0,0.2);
+      box-shadow: 0 0 15px red;
+      color: red;
+    }
+    #nope:hover { transform: scale(1.2); }
+    #love {
+      background: rgba(255,20,147,0.2);
+      box-shadow: 0 0 15px hotpink;
+      color: hotpink;
+    }
+    #love:hover { transform: scale(1.2); }
 
-  const username = localStorage.getItem("username") || "Guest";
-  const mood = localStorage.getItem("mood") || "All";
-  document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
+    /* Popup */
+    .popup {
+      display: none;
+      flex-direction: column;
+      position: fixed;
+      top: 50px;
+      left: 50px;
+      width: 320px;
+      max-height: 60vh;
+      background: rgba(30,30,30,0.95);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255,75,92,0.6);
+      z-index: 999;
+      overflow-y: auto;
+      resize: both;
+    }
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ff4b5c;
+      padding: 8px 12px;
+      border-radius: 12px 12px 0 0;
+      cursor: move;
+      font-weight: bold;
+    }
+    .close-btn {
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+    .close-btn:hover { color: #fff; }
+    #likedList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #likedList li {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #444;
+      gap: 10px;
+      cursor: pointer;
+    }
+    #likedList li img {
+      width: 50px;
+      height: 70px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2 id="userInfo"></h2>
+    <button id="listBtn">Liked Movies</button>
+  </header>
+  <div class="tinder" id="tinderCards"></div>
+  <div class="buttons">
+    <button id="nope">✖</button>
+    <button id="love">❤</button>
+  </div>
 
-  const moodGenreMap = {
-    "Happy": 35,        // Comedy
-    "Sad": 18,          // Drama
-    "Romantic": 10749,  // Romance
-    "Adventurous": 12,  // Adventure
-    "Violent": 28,      // Action
-    "Horny": 10749      // Romance
-  };
+  <!-- Popup -->
+  <div id="likedPopup" class="popup">
+    <div id="popupHeader" class="popup-header">
+      <span>Liked Movies ❤️</span>
+      <span id="closePopup" class="close-btn">&times;</span>
+    </div>
+    <ul id="likedList"></ul>
+  </div>
 
-  const genreId = moodGenreMap[mood] || "";
-  let page = 1;
-  let loading = false;
+  <script>
+    const API_KEY = "0d056e1910c8b138b66596088c28472c";
+    const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
-  async function fetchMovies() {
-    loading = true;
-    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}&with_genres=${genreId}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    page++;
-    loading = false;
-    return data.results;
-  }
+    const username = localStorage.getItem("username") || "Guest";
+    const mood = localStorage.getItem("mood") || "All";
+    document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
 
-  function createCard(movie) {
-    const card = document.createElement("div");
-    card.className = "tinder--card";
-    card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
-    card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
-    return card;
-  }
+    const moodGenreMap = {
+      "Happy": [35, 10751],         // Comedy, Family
+      "Sad": [18, 36],             // Drama, History
+      "Romantic": [10749, 35],     // Romance, Comedy
+      "Adventurous": [12, 28, 14], // Adventure, Action, Fantasy
+      "Violent": [28, 53, 80],     // Action, Thriller, Crime
+      "Horny": [10749, 35]         // Romance, Comedy
+    };
+    const selectedGenres = moodGenreMap[mood] || [];
 
-  async function loadCards() {
-    const cardsContainer = document.getElementById("tinderCards");
-    const movies = await fetchMovies();
-    movies.forEach(movie => {
-      if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
-    });
-  }
+    let page = 1;
+    let loading = false;
+    let likedMovies = [];
 
-  async function initCards() {
-    await loadCards();
-    let cards = document.querySelectorAll('.tinder--card');
-    let current = cards.length - 1;
-
-    function swipeCard(remove) {
-      if (current >= 0) {
-        cards[current--].remove();
-        if (current < 3 && !loading) loadCards();  // load more if low
-      }
+    async function fetchMovies() {
+      loading = true;
+      let genreParam = selectedGenres.length > 0 ? `&with_genres=${selectedGenres.join(',')}` : '';
+      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}${genreParam}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      page++;
+      loading = false;
+      return data.results;
     }
 
-    document.getElementById('nope').onclick = () => swipeCard(false);
-    document.getElementById('love').onclick = () => swipeCard(true);
-  }
+    function createCard(movie) {
+      const card = document.createElement("div");
+      card.className = "tinder--card";
+      card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
+      card.dataset.title = movie.title;
+      card.dataset.poster = IMAGE_BASE + movie.poster_path;
+      card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
+      return card;
+    }
 
-  initCards();
-</script>
+    async function loadCards() {
+      const cardsContainer = document.getElementById("tinderCards");
+      const movies = await fetchMovies();
+      movies.forEach(movie => {
+        if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
+      });
+    }
+
+    async function initCards() {
+      await loadCards();
+      let cards = document.querySelectorAll('.tinder--card');
+      let current = cards.length - 1;
+
+      function swipeCard(liked) {
+        if (current >= 0) {
+          const card = cards[current];
+          if (liked) {
+            likedMovies.push({ title: card.dataset.title, poster: card.dataset.poster });
+          }
+          card.remove();
+          current--;
+          if (current < 3 && !loading) loadCards();
+        }
+      }
+
+      document.getElementById('nope').onclick = () => swipeCard(false);
+      document.getElementById('love').onclick = () => swipeCard(true);
+    }
+
+    initCards();
+
+    // Popup Logic
+    const popup = document.getElementById('likedPopup');
+    document.getElementById('listBtn').onclick = () => {
+      const list = document.getElementById('likedList');
+      list.innerHTML = '';
+      likedMovies.forEach(m => {
+        const li = document.createElement('li');
+        li.innerHTML = `<img src="${m.poster}" alt="${m.title}" /> <span>${m.title}</span>`;
+        li.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(m.title)} movie OTT`, "_blank");
+        list.appendChild(li);
+      });
+      popup.style.display = "flex";
+    };
+    document.getElementById('closePopup').onclick = () => popup.style.display = "none";
+
+    // Draggable popup
+    const header = document.getElementById('popupHeader');
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    header.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - popup.offsetLeft;
+      offsetY = e.clientY - popup.offsetTop;
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        popup.style.left = (e.clientX - offsetX) + 'px';
+        popup.style.top = (e.clientY - offsetY) + 'px';
+      }
+    });
+    document.addEventListener('mouseup', () => isDragging = false);
+  </script>
+</body>
+</html>
