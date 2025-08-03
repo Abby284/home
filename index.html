@@ -83,15 +83,8 @@
       position: relative;
       z-index: 10;
     }
-    .logo-header {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-    .logo-header svg {
-      width: 160px;
-      height: auto;
-    }
+    .logo-header { cursor: pointer; }
+    .logo-header svg { width: 160px; height: auto; }
     .login-button {
       background-color: #ff3c57;
       color: #fff;
@@ -102,12 +95,9 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-    .login-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #ff3c57;
-    }
+    .login-button:hover { transform: scale(1.05); box-shadow: 0 0 10px #ff3c57; }
 
-    /* -------------------- MOVIE SECTIONS -------------------- */
+    /* -------------------- MOVIE SCROLL -------------------- */
     section { padding: 2rem; }
     h2 {
       font-size: 2rem;
@@ -115,13 +105,12 @@
       padding-bottom: 0.5rem;
       margin-bottom: 1.5rem;
     }
-    .movie-container {
+    .movie-outer { width: 100%; overflow: hidden; position: relative; }
+    .movie-inner {
       display: flex;
       gap: 1rem;
-      padding-bottom: 1rem;
+      width: max-content;
       animation: scrollMovies 40s linear infinite;
-      overflow: hidden;
-      height: 320px;
     }
     @keyframes scrollMovies {
       0% { transform: translateX(0); }
@@ -138,10 +127,7 @@
       transition: transform 0.3s ease;
       cursor: pointer;
     }
-    .movie:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 25px rgba(255, 60, 87, 0.7);
-    }
+    .movie:hover { transform: scale(1.08); box-shadow: 0 0 25px rgba(255, 60, 87, 0.7); }
     .movie img { width: 100%; height: 100%; object-fit: cover; }
     .movie-info {
       position: absolute;
@@ -150,7 +136,6 @@
       width: 100%;
       padding: 10px;
       background: rgba(0, 0, 0, 0.75);
-      color: #fff;
       font-size: 0.85rem;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -159,18 +144,11 @@
 
     /* -------------------- RESPONSIVE -------------------- */
     @media (max-width: 768px) {
-      .logo-svg { width: 200px; }
-      .logo-S { font-size: 60px; }
-      .logo-rest { font-size: 40px; }
-      .clap { font-size: 2rem; }
-      .movie-container { height: 260px; }
+      .movie-inner { animation-duration: 20s; }
       .movie { width: 150px; height: 220px; }
     }
     @media (max-width: 480px) {
-      .logo-svg { width: 150px; }
-      .logo-S { font-size: 40px; }
-      .logo-rest { font-size: 30px; }
-      .movie-container { height: 220px; }
+      .movie-inner { animation-duration: 15s; }
       .movie { width: 130px; height: 190px; }
     }
   </style>
@@ -199,10 +177,10 @@
   <!-- MOVIE SECTIONS -->
   <section>
     <h2>Now Showing Near You 🍿</h2>
-    <div class="movie-container" id="nowShowing"></div>
+    <div class="movie-outer"><div class="movie-inner" id="nowShowing"></div></div>
 
     <h2>Upcoming Releases 🎥</h2>
-    <div class="movie-container" id="upcoming"></div>
+    <div class="movie-outer"><div class="movie-inner" id="upcoming"></div></div>
   </section>
 
   <script>
@@ -215,13 +193,11 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
 
-      const allMovies = [...data.results, ...data.results];
+      const allMovies = [...data.results, ...data.results]; // duplicate for loop
       allMovies.forEach(movie => {
         const movieDiv = document.createElement('div');
         movieDiv.classList.add('movie');
-        movieDiv.onclick = () => {
-          window.open(`https://in.bookmyshow.com/explore/movies`, '_blank');
-        };
+        movieDiv.onclick = () => window.open(`https://in.bookmyshow.com/explore/movies`, '_blank');
 
         const img = document.createElement('img');
         img.src = IMAGE_BASE + movie.poster_path;
@@ -229,11 +205,10 @@
         const infoDiv = document.createElement('div');
         infoDiv.classList.add('movie-info');
         infoDiv.innerHTML = `
-            ⭐ ${movie.vote_average.toFixed(1)}<br>
-            🗣️ ${movie.original_language.toUpperCase()}<br>
-            📅 ${movie.release_date || 'N/A'}
+          ⭐ ${movie.vote_average.toFixed(1)}<br>
+          🗣️ ${movie.original_language.toUpperCase()}<br>
+          📅 ${movie.release_date || 'N/A'}
         `;
-
         movieDiv.appendChild(img);
         movieDiv.appendChild(infoDiv);
         container.appendChild(movieDiv);
