@@ -3,171 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SwipeFlix - Recommendations</title>
-  <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
+  <title>SwipeFlix</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at top, #1a1a1a, #0e0e0e);
+      font-family: Arial, sans-serif;
+      background: #111;
       color: white;
       overflow: hidden;
     }
     header {
       display: flex;
       justify-content: space-between;
-      padding: 10px 20px;
-      background: #111;
-      font-size: 1.3rem;
-      font-weight: bold;
-      box-shadow: 0 0 8px rgba(0,0,0,0.5);
-    }
-    header button {
-      background: #ff4b5c;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 15px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: bold;
-      color: white;
-      transition: background 0.3s ease;
-    }
-    header button:hover { background: #e63e4b; }
-
-    .tinder {
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 70px);
-      display: flex;
-      justify-content: center;
       align-items: center;
+      padding: 15px 20px;
+      background: #1a1a1a;
+      font-size: 1.3em;
     }
-
-    .tinder--card {
-      position: absolute;
+    #likedBtn {
+      background: #ff4d4d;
+      border: none;
+      padding: 10px 15px;
+      font-size: 1em;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    .tinder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 70px);
+    }
+    #tinderCards {
+      position: relative;
       width: 350px;
       max-width: 95vw;
       height: 500px;
+    }
+    .tinder--card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       background: #000;
+      transition: transform 0.4s ease, opacity 0.4s ease;
       cursor: grab;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease;
     }
     .tinder--card img {
       width: 100%;
-      height: 100%;
+      height: 70%;
       object-fit: cover;
     }
-    .card-info {
+    .info {
+      padding: 15px;
+      background: rgba(0,0,0,0.85);
       position: absolute;
       bottom: 0;
       width: 100%;
-      background: rgba(0,0,0,0.85);
-      padding: 12px;
-      box-sizing: border-box;
     }
-    .card-info h3 {
-      margin: 0;
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: #ff4b5c;
-    }
-    .rating {
-      color: gold;
-      font-size: 1rem;
-      margin: 2px 0 5px 0;
-    }
-    .card-info p {
-      font-size: 0.9rem;
-      color: #ddd;
-      max-height: 60px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: max-height 0.3s ease;
-    }
-    .card-info p.expanded { max-height: none; }
-    .read-more {
-      display: inline-block;
-      margin-top: 5px;
-      color: #ff4b5c;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
+    .info h3 { margin: 0; color: #ff4d4d; }
+    .info p { font-size: 0.9em; }
     .buttons {
-      position: absolute;
-      bottom: 50px;
       display: flex;
       justify-content: space-between;
       width: 140px;
+      margin-top: 20px;
     }
     .buttons button {
       width: 60px;
       height: 60px;
       border-radius: 50%;
       border: none;
+      font-size: 1.5em;
       cursor: pointer;
-      font-size: 1.5rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      transition: transform 0.2s ease;
+      color: white;
     }
-    .buttons button:active { transform: scale(0.9); }
-    #nope { background: rgba(255,0,0,0.2); color: red; box-shadow: 0 0 15px red; }
-    #love { background: rgba(255,0,128,0.2); color: pink; box-shadow: 0 0 15px pink; }
-
-    /* Popup liked movies */
-    .liked-popup {
+    #nope {
+      background: rgba(255,0,0,0.7);
+      box-shadow: 0 0 20px red;
+    }
+    #love {
+      background: rgba(255,0,100,0.7);
+      box-shadow: 0 0 20px hotpink;
+    }
+    /* Popup */
+    #likedPopup {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%,-50%);
       width: 90%;
-      max-width: 500px;
-      max-height: 70%;
+      max-width: 400px;
       background: rgba(0,0,0,0.95);
-      border-radius: 10px;
       padding: 20px;
+      border-radius: 12px;
       display: none;
-      flex-direction: column;
-      overflow-y: auto;
-      z-index: 1000;
+      z-index: 10;
     }
-    .liked-popup h2 { margin-top: 0; color: #ff4b5c; text-align: center; }
-    .liked-movie {
+    #likedPopup h2 { margin-top: 0; }
+    #likedPopup .movie {
       display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      align-items: center;
     }
-    .liked-movie img {
-      width: 60px;
-      border-radius: 5px;
+    #likedPopup .movie img {
+      width: 50px;
+      border-radius: 6px;
+      margin-right: 10px;
     }
-    .liked-movie-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .close-popup {
-      margin-top: 10px;
-      padding: 8px;
+    #closePopup {
+      background: #ff4d4d;
       border: none;
-      border-radius: 5px;
-      background: #ff4b5c;
+      padding: 8px 12px;
       color: white;
-      font-size: 1rem;
       cursor: pointer;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
   <header>
     <div id="userInfo"></div>
-    <button id="showLiked">Liked Movies</button>
+    <button id="likedBtn">Liked Movies</button>
   </header>
 
   <div class="tinder">
@@ -178,156 +141,114 @@
     </div>
   </div>
 
-  <div class="liked-popup" id="likedPopup">
+  <div id="likedPopup">
     <h2>Liked Movies</h2>
-    <div id="likedMoviesList"></div>
-    <button class="close-popup" id="closePopup">Close</button>
+    <div id="likedList"></div>
+    <button id="closePopup">Close</button>
   </div>
 
-<script>
-const API_KEY = "0d056e1910c8b138b66596088c28472c";
-const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+  <script>
+    const API_KEY = "0d056e1910c8b138b66596088c28472c";
+    const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+    const username = localStorage.getItem("username") || "Guest";
+    const mood = localStorage.getItem("mood") || "All";
+    document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
 
-const username = localStorage.getItem("username") || "Guest";
-const mood = localStorage.getItem("mood") || "All";
-document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
+    const moodGenreMap = {
+      "Happy": [35, 16, 10751],
+      "Sad": [18],
+      "Romantic": [10749, 35],
+      "Adventurous": [12, 28],
+      "Violent": [28, 53],
+      "Horny": [10749, 35, 18]
+    };
 
-const moodGenreMap = {
-  "Happy": [35, 16, 10751],
-  "Sad": [18],
-  "Romantic": [10749, 35],
-  "Adventurous": [12, 28, 14],
-  "Violent": [28, 53],
-  "Horny": [10749, 18]
-};
-const genreIds = moodGenreMap[mood] || [];
+    const selectedGenres = moodGenreMap[mood] || [];
+    let page = 1, loading = false;
+    let likedMovies = [];
 
-let page = 1;
-let loading = false;
-let likedMovies = [];
-
-async function fetchMovies() {
-  loading = true;
-  const genres = genreIds.length > 0 ? `&with_genres=${genreIds.join(",")}` : "";
-  const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}${genres}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  page++;
-  loading = false;
-  return data.results;
-}
-
-function createCard(movie) {
-  const card = document.createElement("div");
-  card.className = "tinder--card";
-
-  const overview = movie.overview || "No synopsis available.";
-  const shortText = overview.length > 120 ? overview.slice(0, 120) + "..." : overview;
-  const isExpandable = overview.length > 120;
-
-  card.innerHTML = `
-    <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />
-    <div class="card-info">
-      <h3>${movie.title}</h3>
-      <div class="rating">⭐ ${movie.vote_average.toFixed(1)}</div>
-      <p class="synopsis">${shortText}</p>
-      ${isExpandable ? '<span class="read-more">Read more</span>' : ""}
-    </div>
-  `;
-
-  const synopsisEl = card.querySelector(".synopsis");
-  const readMoreEl = card.querySelector(".read-more");
-  if (readMoreEl) {
-    readMoreEl.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (synopsisEl.classList.contains("expanded")) {
-        synopsisEl.innerText = shortText;
-        synopsisEl.classList.remove("expanded");
-        readMoreEl.innerText = "Read more";
-      } else {
-        synopsisEl.innerText = overview;
-        synopsisEl.classList.add("expanded");
-        readMoreEl.innerText = "Show less";
-      }
-    });
-  }
-
-  card.dataset.title = movie.title;
-  card.dataset.poster = movie.poster_path;
-  card.dataset.rating = movie.vote_average.toFixed(1);
-  card.onclick = () => window.open(
-    `https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank"
-  );
-
-  return card;
-}
-
-async function loadCards() {
-  const cardsContainer = document.getElementById("tinderCards");
-  const movies = await fetchMovies();
-  movies.forEach(movie => {
-    if (movie.poster_path) {
-      const card = createCard(movie);
-      cardsContainer.appendChild(card);
-      attachSwipe(card);
+    async function fetchMovies() {
+      loading = true;
+      const genreString = selectedGenres.join(",");
+      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}&with_genres=${genreString}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      page++;
+      loading = false;
+      return data.results;
     }
-  });
-}
 
-function attachSwipe(card) {
-  const hammer = new Hammer(card);
-  hammer.on("swipeleft", () => { swipeCard(false); });
-  hammer.on("swiperight", () => { swipeCard(true); });
-}
+    function createCard(movie) {
+      const card = document.createElement("div");
+      card.className = "tinder--card";
+      card.dataset.id = movie.id;
+      card.dataset.title = movie.title;
+      card.dataset.poster = IMAGE_BASE + movie.poster_path;
+      card.innerHTML = `
+        <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />
+        <div class="info">
+          <h3>${movie.title}</h3>
+          <p>⭐ ${movie.vote_average.toFixed(1)}</p>
+          <p>${movie.overview.substring(0,120)}...</p>
+        </div>`;
+      return card;
+    }
 
-async function initCards() {
-  await loadCards();
-  document.getElementById('nope').onclick = () => swipeCard(false);
-  document.getElementById('love').onclick = () => swipeCard(true);
-}
+    async function loadCards() {
+      const movies = await fetchMovies();
+      const container = document.getElementById("tinderCards");
+      movies.forEach(m => {
+        if (m.poster_path) container.appendChild(createCard(m));
+      });
+    }
 
-function swipeCard(liked) {
-  const cards = document.querySelectorAll('.tinder--card');
-  if (cards.length === 0) return;
+    function saveLiked(card) {
+      likedMovies.push({
+        title: card.dataset.title,
+        poster: card.dataset.poster
+      });
+    }
 
-  const topCard = cards[cards.length - 1];
-  if (liked) saveLiked(topCard.dataset);
-  topCard.remove();
+    function swipeCard(liked) {
+      const cards = document.querySelectorAll('.tinder--card');
+      if (!cards.length) return;
+      const topCard = cards[cards.length - 1];
+      if (liked) saveLiked(topCard);
+      topCard.style.transform = liked ?
+        "translate(400px,-100px) rotate(20deg)" :
+        "translate(-400px,-100px) rotate(-20deg)";
+      topCard.style.opacity = "0";
+      setTimeout(() => {
+        topCard.remove();
+        if (cards.length < 4 && !loading) loadCards();
+      }, 400);
+    }
 
-  if (cards.length < 4 && !loading) loadCards();
-}
+    // Buttons
+    document.getElementById("love").onclick = () => swipeCard(true);
+    document.getElementById("nope").onclick = () => swipeCard(false);
 
-function saveLiked(data) {
-  likedMovies.push({
-    title: data.title,
-    poster: data.poster,
-    rating: data.rating
-  });
-}
+    // Swipe Gestures (Mobile)
+    let startX = 0;
+    document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+    document.addEventListener('touchend', e => {
+      const endX = e.changedTouches[0].clientX;
+      if (endX - startX > 100) swipeCard(true); // right swipe
+      else if (startX - endX > 100) swipeCard(false); // left swipe
+    });
 
-document.getElementById("showLiked").onclick = () => {
-  const list = document.getElementById("likedMoviesList");
-  list.innerHTML = "";
-  likedMovies.forEach(movie => {
-    const item = document.createElement("div");
-    item.className = "liked-movie";
-    item.innerHTML = `
-      <img src="${IMAGE_BASE + movie.poster}" alt="${movie.title}" />
-      <div class="liked-movie-info">
-        <strong>${movie.title}</strong>
-        <span>⭐ ${movie.rating}</span>
-      </div>
-    `;
-    list.appendChild(item);
-  });
-  document.getElementById("likedPopup").style.display = "flex";
-};
+    // Liked Movies Popup
+    document.getElementById("likedBtn").onclick = () => {
+      const list = document.getElementById("likedList");
+      list.innerHTML = likedMovies.map(m =>
+        `<div class="movie"><img src="${m.poster}" /><span>${m.title}</span></div>`
+      ).join("");
+      document.getElementById("likedPopup").style.display = "block";
+    };
+    document.getElementById("closePopup").onclick = () =>
+      document.getElementById("likedPopup").style.display = "none";
 
-document.getElementById("closePopup").onclick = () => {
-  document.getElementById("likedPopup").style.display = "none";
-};
-
-initCards();
-</script>
+    loadCards();
+  </script>
 </body>
 </html>
