@@ -3,28 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SwipeFlix - Recommendations</title>
+  <title>SwipeFlix Recommendations</title>
   <style>
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #111, #000);
       font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, #1a1a1a, #0e0e0e);
       color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
       overflow: hidden;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(20, 20, 20, 0.9);
-      box-shadow: 0 0 20px rgba(255, 75, 92, 0.4);
+      padding: 15px 25px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: #111;
+      color: #ff4b5c;
     }
-    header h2 { color: #ff4b5c; margin: 0; }
-    header button {
-      padding: 0.5rem 1rem;
+    #likedBtn {
       background: #ff4b5c;
       border: none;
+      padding: 8px 15px;
       border-radius: 8px;
       color: white;
       font-weight: bold;
@@ -32,235 +36,223 @@
     }
     .tinder {
       position: relative;
-      width: 100%;
-      height: calc(100vh - 100px);
+      flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      perspective: 1000px;
+      overflow: hidden;
     }
     .tinder--card {
-      position: absolute;
       width: 300px;
       height: 450px;
-      border-radius: 15px;
       background: #222;
-      overflow: hidden;
-      box-shadow: 0 0 30px rgba(255, 75, 92, 0.3);
-      transition: transform 0.3s ease;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 75, 92, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
+      position: absolute;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .tinder--card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 20px;
     }
     .buttons {
-      position: absolute;
-      bottom: 40px;
       display: flex;
-      gap: 40px;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px;
     }
-    .buttons button {
-      width: 70px;
-      height: 70px;
+    .btn {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
       border: none;
       font-size: 2rem;
-      cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.2s ease;
     }
     #nope {
-      background: rgba(255,0,0,0.2);
-      box-shadow: 0 0 15px red;
+      background: #330000;
       color: red;
+      box-shadow: 0 0 15px red;
     }
-    #nope:hover { transform: scale(1.2); }
     #love {
-      background: rgba(255,20,147,0.2);
-      box-shadow: 0 0 15px hotpink;
+      background: #330033;
       color: hotpink;
+      box-shadow: 0 0 15px hotpink;
     }
-    #love:hover { transform: scale(1.2); }
-
-    /* Popup */
-    .popup {
+    .btn:hover {
+      transform: scale(1.1);
+    }
+    /* Liked Movies Popup */
+    #likedPopup {
       display: none;
-      flex-direction: column;
       position: fixed;
-      top: 50px;
-      left: 50px;
-      width: 320px;
-      max-height: 60vh;
-      background: rgba(30,30,30,0.95);
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255,75,92,0.6);
-      z-index: 999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(20, 20, 20, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      height: 70%;
       overflow-y: auto;
-      resize: both;
+      z-index: 1000;
+      box-shadow: 0 0 25px rgba(255, 75, 92, 0.7);
     }
-    .popup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #ff4b5c;
-      padding: 8px 12px;
-      border-radius: 12px 12px 0 0;
-      cursor: move;
-      font-weight: bold;
+    #likedPopup h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #ff4b5c;
     }
-    .close-btn {
-      cursor: pointer;
-      font-size: 1.5rem;
-    }
-    .close-btn:hover { color: #fff; }
-    #likedList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    #likedList li {
-      display: flex;
-      align-items: center;
-      padding: 8px;
-      border-bottom: 1px solid #444;
+    .liked-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 10px;
+    }
+    .liked-grid img {
+      width: 100%;
+      border-radius: 8px;
+      transition: transform 0.2s ease;
       cursor: pointer;
     }
-    #likedList li img {
-      width: 50px;
-      height: 70px;
-      border-radius: 6px;
-      object-fit: cover;
+    .liked-grid img:hover {
+      transform: scale(1.05);
+    }
+    #closePopup {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 15px;
+      background: #ff4b5c;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <header>
-    <h2 id="userInfo"></h2>
-    <button id="listBtn">Liked Movies</button>
+    <div id="userInfo"></div>
+    <button id="likedBtn">Liked Movies</button>
   </header>
+
   <div class="tinder" id="tinderCards"></div>
+
   <div class="buttons">
-    <button id="nope">✖</button>
-    <button id="love">❤</button>
+    <button class="btn" id="nope">✖</button>
+    <button class="btn" id="love">❤</button>
   </div>
 
-  <!-- Popup -->
-  <div id="likedPopup" class="popup">
-    <div id="popupHeader" class="popup-header">
-      <span>Liked Movies ❤️</span>
-      <span id="closePopup" class="close-btn">&times;</span>
-    </div>
-    <ul id="likedList"></ul>
+  <!-- Liked Movies Popup -->
+  <div id="likedPopup">
+    <h2>Liked Movies</h2>
+    <div class="liked-grid" id="likedGrid"></div>
+    <button id="closePopup">Close</button>
   </div>
 
-  <script>
-    const API_KEY = "0d056e1910c8b138b66596088c28472c";
-    const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
+<script>
+  const API_KEY = "0d056e1910c8b138b66596088c28472c";
+  const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
-    const username = localStorage.getItem("username") || "Guest";
-    const mood = localStorage.getItem("mood") || "All";
-    document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
+  const username = localStorage.getItem("username") || "Guest";
+  const mood = localStorage.getItem("mood") || "All";
+  document.getElementById("userInfo").innerText = `${username} • Mood: ${mood}`;
 
-    const moodGenreMap = {
-      "Happy": [35, 10751],         // Comedy, Family
-      "Sad": [18, 36],             // Drama, History
-      "Romantic": [10749, 35],     // Romance, Comedy
-      "Adventurous": [12, 28, 14], // Adventure, Action, Fantasy
-      "Violent": [28, 53, 80],     // Action, Thriller, Crime
-      "Horny": [10749, 35]         // Romance, Comedy
-    };
-    const selectedGenres = moodGenreMap[mood] || [];
+  const moodGenreMap = {
+    "Happy": [35, 10751],             // Comedy, Family
+    "Sad": [18, 36],                  // Drama, History
+    "Romantic": [10749, 35],          // Romance + Comedy (Rom-Com)
+    "Adventurous": [12, 28, 14],      // Adventure, Action, Fantasy
+    "Violent": [28, 53, 80],          // Action, Thriller, Crime
+    "Horny": [10749, 10402]           // Romance + Music
+  };
 
-    let page = 1;
-    let loading = false;
-    let likedMovies = [];
+  const genreIds = moodGenreMap[mood] || [];
+  const genreParam = genreIds.length ? `&with_genres=${genreIds.join(',')}` : '';
+  let page = 1;
+  let loading = false;
+  let likedMovies = [];
 
-    async function fetchMovies() {
-      loading = true;
-      let genreParam = selectedGenres.length > 0 ? `&with_genres=${selectedGenres.join(',')}` : '';
-      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}${genreParam}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      page++;
-      loading = false;
-      return data.results;
+  async function fetchMovies() {
+    loading = true;
+    let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}${genreParam}&include_adult=false`;
+    const res = await fetch(url);
+    const data = await res.json();
+    page++;
+    loading = false;
+    return data.results;
+  }
+
+  function createCard(movie) {
+    const card = document.createElement("div");
+    card.className = "tinder--card";
+    card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
+    card.dataset.title = movie.title;
+    card.dataset.poster = movie.poster_path;
+    card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
+    return card;
+  }
+
+  async function loadCards() {
+    const cardsContainer = document.getElementById("tinderCards");
+    const movies = await fetchMovies();
+    movies.forEach(movie => {
+      if (movie.poster_path) cardsContainer.prepend(createCard(movie));
+    });
+  }
+
+  async function initCards() {
+    await loadCards();
+    document.getElementById('nope').onclick = () => swipeCard(false);
+    document.getElementById('love').onclick = () => swipeCard(true);
+  }
+
+  async function swipeCard(liked) {
+    const cards = document.querySelectorAll('.tinder--card');
+    if (cards.length === 0) {
+      if (!loading) await loadCards();
+      return;
     }
-
-    function createCard(movie) {
-      const card = document.createElement("div");
-      card.className = "tinder--card";
-      card.innerHTML = `<img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}" />`;
-      card.dataset.title = movie.title;
-      card.dataset.poster = IMAGE_BASE + movie.poster_path;
-      card.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(movie.title)} movie OTT`, "_blank");
-      return card;
-    }
-
-    async function loadCards() {
-      const cardsContainer = document.getElementById("tinderCards");
-      const movies = await fetchMovies();
-      movies.forEach(movie => {
-        if (movie.poster_path) cardsContainer.appendChild(createCard(movie));
+    const topCard = cards[0];
+    if (liked) {
+      likedMovies.push({
+        title: topCard.dataset.title,
+        poster: topCard.dataset.poster
       });
     }
+    topCard.remove();
+    if (cards.length < 4 && !loading) await loadCards();
+  }
 
-    async function initCards() {
-      await loadCards();
-      let cards = document.querySelectorAll('.tinder--card');
-      let current = cards.length - 1;
-
-      function swipeCard(liked) {
-        if (current >= 0) {
-          const card = cards[current];
-          if (liked) {
-            likedMovies.push({ title: card.dataset.title, poster: card.dataset.poster });
-          }
-          card.remove();
-          current--;
-          if (current < 3 && !loading) loadCards();
-        }
-      }
-
-      document.getElementById('nope').onclick = () => swipeCard(false);
-      document.getElementById('love').onclick = () => swipeCard(true);
-    }
-
-    initCards();
-
-    // Popup Logic
-    const popup = document.getElementById('likedPopup');
-    document.getElementById('listBtn').onclick = () => {
-      const list = document.getElementById('likedList');
-      list.innerHTML = '';
-      likedMovies.forEach(m => {
-        const li = document.createElement('li');
-        li.innerHTML = `<img src="${m.poster}" alt="${m.title}" /> <span>${m.title}</span>`;
-        li.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(m.title)} movie OTT`, "_blank");
-        list.appendChild(li);
-      });
-      popup.style.display = "flex";
-    };
-    document.getElementById('closePopup').onclick = () => popup.style.display = "none";
-
-    // Draggable popup
-    const header = document.getElementById('popupHeader');
-    let offsetX = 0, offsetY = 0, isDragging = false;
-    header.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      offsetX = e.clientX - popup.offsetLeft;
-      offsetY = e.clientY - popup.offsetTop;
+  // Liked movies popup
+  document.getElementById('likedBtn').onclick = () => {
+    const grid = document.getElementById('likedGrid');
+    grid.innerHTML = "";
+    likedMovies.forEach(m => {
+      const img = document.createElement('img');
+      img.src = IMAGE_BASE + m.poster;
+      img.alt = m.title;
+      img.title = m.title;
+      img.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(m.title)} movie OTT`, "_blank");
+      grid.appendChild(img);
     });
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        popup.style.left = (e.clientX - offsetX) + 'px';
-        popup.style.top = (e.clientY - offsetY) + 'px';
-      }
-    });
-    document.addEventListener('mouseup', () => isDragging = false);
-  </script>
+    document.getElementById('likedPopup').style.display = "block";
+  };
+  document.getElementById('closePopup').onclick = () => {
+    document.getElementById('likedPopup').style.display = "none";
+  };
+
+  initCards();
+</script>
 </body>
 </html>
