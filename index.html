@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SwipeFlix 🎬</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
   <style>
     body {
       margin: 0;
@@ -15,136 +14,61 @@
       overflow-x: hidden;
     }
 
-    /* -------------------- INTRO ANIMATION -------------------- */
-    #introLogo {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: #000;
-      opacity: 1;
-      transition: opacity 1s ease;
-    }
-    #introLogo.hide { opacity: 0; pointer-events: none; }
-
-    .logo-svg {
-      width: 300px;
-      height: auto;
-    }
-    .logo-S {
-      fill: #ff3c57;
-      font-size: 80px;
-      font-weight: 900;
-      opacity: 0;
-      transform: scale(0.5);
-      animation: S-appear 1s forwards ease-out;
-    }
-    .logo-rest {
-      fill: white;
-      font-size: 60px;
-      font-weight: 600;
-      opacity: 0;
-      animation: rest-slide 1s forwards ease-out 0.8s;
-    }
-    @keyframes S-appear {
-      0% { opacity: 0; transform: scale(0.5); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes rest-slide {
-      0% { opacity: 0; transform: translateX(-30px); }
-      100% { opacity: 1; transform: translateX(0); }
-    }
-    .clap {
-      font-size: 3rem;
-      color: #ff3c57;
-      opacity: 0;
-      animation: clap-drop 1s ease forwards 1.3s;
-    }
-    @keyframes clap-drop {
-      from { transform: translateY(-30px) rotate(-20deg); opacity: 0; }
-      to { transform: translateY(0) rotate(0); opacity: 1; }
-    }
-    body.loaded header, body.loaded section { opacity: 1; transition: opacity 1s ease; }
-    body header, body section { opacity: 0; }
-
-    /* -------------------- HEADER -------------------- */
     header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 1rem 2rem;
+      padding: 0.5rem;
       background-color: #121212;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    }
-    .logo-header {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-    .logo-header svg {
-      width: 160px;
-      height: auto;
-    }
-    .login-button {
-      background-color: #ff3c57;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 12px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .login-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px #ff3c57;
+      position: relative;
+      z-index: 1000;
     }
 
-    /* -------------------- MOVIE SECTIONS -------------------- */
-    section { padding: 2rem; }
+    .logo {
+      width: 180px;
+      animation: zoomFade 1.5s ease forwards;
+    }
+
+    @keyframes zoomFade {
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    section {
+      padding: 1.5rem;
+    }
+
     h2 {
-      font-size: 2rem;
+      font-size: 1.5rem;
       border-bottom: 2px solid #ff3c57;
       padding-bottom: 0.5rem;
       margin-bottom: 1.5rem;
     }
+
     .movie-container {
       display: flex;
       gap: 1rem;
-      padding-bottom: 1rem;
-      animation: scrollMovies 40s linear infinite;
+      overflow: hidden;
     }
-    @keyframes scrollMovies {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
+
     .movie {
       position: relative;
       flex: 0 0 auto;
-      width: 200px;
-      height: 300px;
-      border-radius: 15px;
+      width: 180px;
+      height: 270px;
+      border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 20px rgba(255, 60, 87, 0.3);
       transition: transform 0.3s ease;
       cursor: pointer;
     }
-    .movie:hover {
-      transform: scale(1.08);
-      box-shadow: 0 0 25px rgba(255, 60, 87, 0.7);
-    }
+
     .movie img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .movie-info {
       position: absolute;
       bottom: 0;
@@ -153,35 +77,31 @@
       padding: 10px;
       background: rgba(0, 0, 0, 0.75);
       color: #fff;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    .movie:hover .movie-info { opacity: 1; }
+
+    .movie:hover .movie-info {
+      opacity: 1;
+    }
+
+    @keyframes scrollMovies {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @media screen and (max-width: 768px) {
+      .logo { width: 140px; }
+      .movie { width: 140px; height: 210px; }
+    }
   </style>
 </head>
 <body>
-  <!-- Intro animation -->
-  <div id="introLogo">
-    <svg viewBox="0 0 500 100" class="logo-svg">
-      <text x="0" y="70" class="logo-S">S</text>
-      <text x="65" y="70" class="logo-rest">wipeFlix</text>
-    </svg>
-    <i class="fa-solid fa-clapperboard clap"></i>
-  </div>
-
-  <!-- HEADER -->
   <header>
-    <div class="logo-header" onclick="goHome()">
-      <svg viewBox="0 0 500 100" class="logo-svg">
-        <text x="0" y="70" class="logo-S" style="opacity:1; transform:scale(1);">S</text>
-        <text x="65" y="70" class="logo-rest" style="opacity:1;">wipeFlix</text>
-      </svg>
-    </div>
-    <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
+    <img src="swipeflix.png" alt="SwipeFlix Logo" class="logo" />
   </header>
 
-  <!-- MOVIE SECTIONS -->
   <section>
     <h2>Now Showing Near You 🍿</h2>
     <div class="movie-container" id="nowShowing"></div>
@@ -193,15 +113,17 @@
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+    const isMobile = window.innerWidth <= 768;
 
     async function fetchMovies(url, containerId) {
       const res = await fetch(url);
       const data = await res.json();
       const container = document.getElementById(containerId);
-      container.innerHTML = ''; // clear previous
+      container.innerHTML = '';
 
-      // duplicate list for infinite scroll feel
+      // Duplicate movie list for seamless infinite scroll
       const allMovies = [...data.results, ...data.results];
+
       allMovies.forEach(movie => {
         const movieDiv = document.createElement('div');
         movieDiv.classList.add('movie');
@@ -215,38 +137,29 @@
         const infoDiv = document.createElement('div');
         infoDiv.classList.add('movie-info');
         infoDiv.innerHTML = `
-            ⭐ ${movie.vote_average.toFixed(1)}<br>
-            🗣️ ${movie.original_language.toUpperCase()}<br>
-            📅 ${movie.release_date || 'N/A'}
+          ⭐ ${movie.vote_average.toFixed(1)}<br>
+          🗣️ ${movie.original_language.toUpperCase()}<br>
+          📅 ${movie.release_date || 'N/A'}
         `;
 
         movieDiv.appendChild(img);
         movieDiv.appendChild(infoDiv);
         container.appendChild(movieDiv);
       });
+
+      // Adjust speed dynamically: faster for mobile
+      const duration = isMobile ? allMovies.length : allMovies.length * 2;
+      container.style.animation = `scrollMovies ${duration}s linear infinite`;
     }
 
-    // Fetch Indian region movies
     fetchMovies(
       `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`,
       'nowShowing'
     );
-
     fetchMovies(
       `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`,
       'upcoming'
     );
-
-    function goHome() { window.location.href = 'index.html'; }
-
-    // Intro animation
-    window.addEventListener("load", () => {
-      const intro = document.getElementById("introLogo");
-      setTimeout(() => {
-        intro.classList.add("hide");
-        document.body.classList.add("loaded");
-      }, 2500);
-    });
   </script>
 </body>
 </html>
