@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SwipeFlix 🎬</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
   <style>
     body {
       margin: 0;
@@ -14,140 +13,88 @@
       color: #fff;
       overflow-x: hidden;
     }
-
-    /* -------------------- INTRO ANIMATION -------------------- */
+    /* Intro animation */
     #introLogo {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
       flex-direction: column;
-      background: #000;
-      z-index: 9999;
-      opacity: 1;
+      background: #000; z-index: 9999; opacity: 1;
       transition: opacity 1s ease;
     }
     #introLogo.hide { opacity: 0; pointer-events: none; }
-
     .logo-svg { width: 300px; height: auto; }
     .logo-S {
-      fill: #ff3c57;
-      font-size: 80px;
-      font-weight: 900;
-      opacity: 0;
-      transform: scale(0.5);
-      animation: S-appear 1s forwards ease-out;
+      fill: #ff3c57; font-size: 80px; font-weight: 900; opacity: 0;
+      transform: scale(0.5); animation: S-appear 1s forwards ease-out;
     }
     .logo-rest {
-      fill: white;
-      font-size: 60px;
-      font-weight: 600;
-      opacity: 0;
+      fill: white; font-size: 60px; font-weight: 600; opacity: 0;
       animation: rest-slide 1s forwards ease-out 0.8s;
     }
-    .clap {
-      font-size: 3rem;
-      color: #ff3c57;
-      opacity: 0;
-      animation: clap-drop 1s ease forwards 1.3s;
-    }
-
-    @keyframes S-appear {
-      from { opacity: 0; transform: scale(0.5); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes rest-slide {
-      from { opacity: 0; transform: translateX(-30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes clap-drop {
-      from { transform: translateY(-30px) rotate(-20deg); opacity: 0; }
-      to { transform: translateY(0) rotate(0); opacity: 1; }
-    }
-
+    .clap { font-size: 3rem; color: #ff3c57; opacity: 0; animation: clap-drop 1s ease forwards 1.3s; }
+    @keyframes S-appear { from {opacity:0; transform:scale(0.5);} to {opacity:1; transform:scale(1);} }
+    @keyframes rest-slide { from {opacity:0; transform:translateX(-30px);} to {opacity:1; transform:translateX(0);} }
+    @keyframes clap-drop { from {transform:translateY(-30px) rotate(-20deg); opacity:0;} to {transform:translateY(0) rotate(0); opacity:1;} }
     body.loaded header, body.loaded section { opacity: 1; transition: opacity 1s ease; }
     body header, body section { opacity: 0; }
 
-    /* -------------------- HEADER -------------------- */
+    /* Header */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background-color: #121212;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      position: relative;
-      z-index: 10;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 2rem; background-color: #121212;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
     .logo-header { cursor: pointer; }
     .logo-header svg { width: 160px; height: auto; }
+    .search-bar {
+      flex: 1; margin: 0 20px;
+      display: flex; align-items: center;
+    }
+    .search-bar input {
+      flex: 1; padding: 0.5rem 1rem;
+      border-radius: 20px; border: none;
+      font-size: 1rem;
+    }
     .login-button {
-      background-color: #ff3c57;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 12px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
+      background-color: #ff3c57; color: #fff;
+      padding: 0.5rem 1rem; border-radius: 12px;
+      font-weight: 600; border: none; cursor: pointer;
       transition: all 0.3s ease;
     }
     .login-button:hover { transform: scale(1.05); box-shadow: 0 0 10px #ff3c57; }
 
-    /* -------------------- MOVIE SCROLL -------------------- */
+    /* Movie scroll sections */
     section { padding: 2rem; }
-    h2 {
-      font-size: 2rem;
-      border-bottom: 2px solid #ff3c57;
-      padding-bottom: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
+    h2 { font-size: 2rem; border-bottom: 2px solid #ff3c57; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
     .movie-outer { width: 100%; overflow: hidden; position: relative; }
-    .movie-inner {
-      display: flex;
-      gap: 1rem;
-      width: max-content;
-      animation: scrollMovies 40s linear infinite;
-    }
-    @keyframes scrollMovies {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .movie {
-      position: relative;
-      flex: 0 0 auto;
-      width: 200px;
-      height: 300px;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(255, 60, 87, 0.3);
-      transition: transform 0.3s ease;
-      cursor: pointer;
-    }
-    .movie:hover { transform: scale(1.08); box-shadow: 0 0 25px rgba(255, 60, 87, 0.7); }
+    .movie-inner { display: flex; gap: 1rem; width: max-content; animation: scrollMovies 40s linear infinite; }
+    @keyframes scrollMovies { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+    .movie { position: relative; flex: 0 0 auto; width: 200px; height: 300px; border-radius: 15px; overflow: hidden; box-shadow: 0 0 20px rgba(255,60,87,0.3); transition: transform 0.3s ease; cursor: pointer; }
+    .movie:hover { transform: scale(1.08); box-shadow: 0 0 25px rgba(255,60,87,0.7); }
     .movie img { width: 100%; height: 100%; object-fit: cover; }
-    .movie-info {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.75);
-      font-size: 0.85rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+    .movie-info { position: absolute; bottom: 0; width: 100%; padding: 10px; background: rgba(0,0,0,0.75); font-size: 0.85rem; opacity: 0; transition: opacity 0.3s ease; }
     .movie:hover .movie-info { opacity: 1; }
 
-    /* -------------------- RESPONSIVE -------------------- */
-    @media (max-width: 768px) {
+    /* Search Results Grid */
+    .search-page { padding: 2rem; }
+    #searchResultsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+    .result-card { position: relative; cursor: pointer; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(255,60,87,0.3); transition: transform 0.3s ease; }
+    .result-card:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,60,87,0.7); }
+    .result-card img { width: 100%; height: 100%; object-fit: cover; }
+    .result-info { position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); padding: 5px; font-size: 0.85rem; text-align: center; }
+
+    /* Loading Spinner */
+    .loader { display: none; text-align: center; padding: 20px; }
+    .loader i { font-size: 2rem; color: #ff3c57; animation: spin 1s linear infinite; }
+    @keyframes spin { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
+
+    @media (max-width:768px) {
       .movie-inner { animation-duration: 20s; }
       .movie { width: 150px; height: 220px; }
     }
-    @media (max-width: 480px) {
+    @media (max-width:480px) {
       .movie-inner { animation-duration: 15s; }
       .movie { width: 130px; height: 190px; }
     }
@@ -171,54 +118,107 @@
         <text x="65" y="70" class="logo-rest" style="opacity:1;">wipeFlix</text>
       </svg>
     </div>
+    <div class="search-bar">
+      <input id="searchInput" type="text" placeholder="Search movies..." oninput="startSearch()" />
+    </div>
     <button class="login-button" onclick="window.location.href='login.html'">Login & Mood 🎭</button>
   </header>
 
   <!-- MOVIE SECTIONS -->
-  <section>
+  <section id="homePage">
     <h2>Now Showing Near You 🍿</h2>
     <div class="movie-outer"><div class="movie-inner" id="nowShowing"></div></div>
-
     <h2>Upcoming Releases 🎥</h2>
     <div class="movie-outer"><div class="movie-inner" id="upcoming"></div></div>
   </section>
+
+  <!-- SEARCH RESULTS -->
+  <div class="search-page" id="searchPage" style="display:none;">
+    <h2 id="searchTitle">Search Results</h2>
+    <div id="searchResultsGrid"></div>
+    <div class="loader" id="loader"><i class="fa-solid fa-spinner"></i></div>
+  </div>
 
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
+    // Fetch movies for home
     async function fetchMovies(url, containerId) {
       const res = await fetch(url);
       const data = await res.json();
       const container = document.getElementById(containerId);
       container.innerHTML = '';
-
-      const allMovies = [...data.results, ...data.results]; // duplicate for loop
+      const allMovies = [...data.results, ...data.results];
       allMovies.forEach(movie => {
         const movieDiv = document.createElement('div');
         movieDiv.classList.add('movie');
         movieDiv.onclick = () => window.open(`https://in.bookmyshow.com/explore/movies`, '_blank');
-
-        const img = document.createElement('img');
-        img.src = IMAGE_BASE + movie.poster_path;
-
-        const infoDiv = document.createElement('div');
-        infoDiv.classList.add('movie-info');
-        infoDiv.innerHTML = `
-          ⭐ ${movie.vote_average.toFixed(1)}<br>
-          🗣️ ${movie.original_language.toUpperCase()}<br>
-          📅 ${movie.release_date || 'N/A'}
-        `;
-        movieDiv.appendChild(img);
-        movieDiv.appendChild(infoDiv);
+        movieDiv.innerHTML = `
+          <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}">
+          <div class="movie-info">
+            ⭐ ${movie.vote_average.toFixed(1)}<br>
+            🗣️ ${movie.original_language.toUpperCase()}<br>
+            📅 ${movie.release_date || 'N/A'}
+          </div>`;
         container.appendChild(movieDiv);
       });
     }
-
     fetchMovies(`https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-IN&region=IN`, 'nowShowing');
     fetchMovies(`https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-IN&region=IN`, 'upcoming');
 
-    function goHome() { window.location.href = 'index.html'; }
+    // Search movies infinite scroll
+    let searchPageNum = 1, searchQuery = '', loadingSearch = false;
+    async function startSearch(reset = true) {
+      searchQuery = document.getElementById('searchInput').value.trim();
+      if (!searchQuery) {
+        document.getElementById('searchPage').style.display = 'none';
+        document.getElementById('homePage').style.display = 'block';
+        return;
+      }
+      document.getElementById('searchPage').style.display = 'block';
+      document.getElementById('homePage').style.display = 'none';
+      if (reset) {
+        searchPageNum = 1;
+        document.getElementById('searchResultsGrid').innerHTML = '';
+      }
+      await searchMovie();
+    }
+
+    async function searchMovie() {
+      if (loadingSearch) return;
+      loadingSearch = true;
+      document.getElementById('loader').style.display = 'block';
+      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${searchQuery}&page=${searchPageNum}`);
+      const data = await res.json();
+      const grid = document.getElementById('searchResultsGrid');
+      data.results.forEach(movie => {
+        const card = document.createElement('div');
+        card.classList.add('result-card');
+        card.onclick = () => window.open(`https://in.bookmyshow.com/explore/movies`, '_blank');
+        card.innerHTML = `
+          <img src="${IMAGE_BASE + movie.poster_path}" alt="${movie.title}">
+          <div class="result-info">${movie.title} <br> ⭐ ${movie.vote_average.toFixed(1)}</div>`;
+        grid.appendChild(card);
+      });
+      document.getElementById('loader').style.display = 'none';
+      searchPageNum++;
+      loadingSearch = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (document.getElementById('searchPage').style.display === 'block') {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 && !loadingSearch) {
+          searchMovie();
+        }
+      }
+    });
+
+    function goHome() {
+      document.getElementById('searchPage').style.display = 'none';
+      document.getElementById('homePage').style.display = 'block';
+      document.getElementById('searchInput').value = '';
+    }
 
     // Intro animation
     document.body.style.overflow = "hidden";
