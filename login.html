@@ -11,100 +11,128 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: radial-gradient(circle at top, #1a1a1a, #0e0e0e);
       color: white;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      animation: fadeInPage 0.8s ease-in-out;
     }
+    @keyframes fadeInPage {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* -------- GLASS LOGIN BOX -------- */
     .login-container {
-      background: rgba(30, 30, 30, 0.95);
-      padding: 30px 25px;
-      border-radius: 16px;
-      box-shadow: 0 0 25px rgba(255, 75, 92, 0.4);
+      position: relative;
+      padding: 40px;
       width: 100%;
-      max-width: 360px;
-      animation: fadeIn 0.8s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    h2 {
+      max-width: 400px;
       text-align: center;
-      margin-bottom: 20px;
-      color: #ff4b5c;
-      font-size: 1.8rem;
+      background: rgba(30, 30, 30, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      z-index: 1;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
     }
+
+    /* Animated Glow Border */
+    .login-container::before {
+      content: "";
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 22px;
+      background: linear-gradient(45deg, cyan, #00ffff80, cyan);
+      background-size: 400% 400%;
+      z-index: -1;
+      animation: borderGlow 6s linear infinite;
+    }
+    @keyframes borderGlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      font-size: 2rem;
+      color: #ff4b5c;
+    }
+
     input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: none;
+      padding: 14px;
+      margin: 10px 0;
+      border: 2px solid transparent;
       border-radius: 8px;
       font-size: 1rem;
+      outline: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    .mood-section {
-      text-align: center;
-      margin: 18px 0 8px;
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: cyan;
+      box-shadow: 0 0 10px cyan;
     }
-    .mood-title {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-      color: #ccc;
-    }
+
+    .mood-section { margin: 25px 0 10px; }
+    .mood-title { font-size: 1.2rem; margin-bottom: 10px; color: #ccc; }
+
     .mood-options {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
       justify-content: center;
     }
     .mood-btn {
-      width: 60px;
-      height: 60px;
-      font-size: 1.6rem;
-      background: #222;
+      width: 70px; height: 70px;
+      font-size: 2rem;
+      background: rgba(255, 255, 255, 0.08);
       border: 2px solid transparent;
       border-radius: 50%;
       cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
       color: white;
+      backdrop-filter: blur(5px);
     }
     .mood-btn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 0 12px #ff4b5c;
+      transform: scale(1.2);
+      box-shadow: 0 0 15px cyan;
     }
     .mood-btn.active {
-      border-color: #ff4b5c;
-      box-shadow: 0 0 15px #ff4b5c;
+      border-color: cyan;
+      box-shadow: 0 0 20px cyan;
     }
+
     button[type="submit"] {
       width: 100%;
-      padding: 12px;
-      background: #ff4b5c;
+      padding: 15px;
       border: none;
       border-radius: 8px;
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
       color: white;
-      transition: background 0.3s;
-      margin-top: 20px;
+      background: linear-gradient(90deg, #ff4b5c, #ff3b47);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 25px;
     }
     button[type="submit"]:hover {
-      background: #e43e4b;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #ff4b5c;
     }
+
+    #google-btn { margin-top: 20px; display: flex; justify-content: center; }
     .back-link {
       display: block;
-      margin-top: 15px;
-      text-align: center;
+      margin-top: 20px;
       color: #ccc;
       text-decoration: none;
+      transition: color 0.3s ease;
     }
-    .back-link:hover { color: #fff; }
-    #google-btn { margin-top: 15px; display: flex; justify-content: center; }
+    .back-link:hover { color: white; }
   </style>
 </head>
 <body>
