@@ -36,12 +36,17 @@
   width: 100%;
   max-width: 400px;
   text-align: center;
-  background: rgba(40, 40, 43, 1.0);  /* <-- change applied */
+
+  /* Matte Black Glass Background */
+  background: rgba(0, 0, 0, 0.75);   /* <-- Black, not red */
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+
   border-radius: 20px;
-  z-index: 1;
-  box-shadow: 0 0 30px rgba(229, 9, 20, 0.4);
+
+  /* Red Glow Border Only */
+  border: 1px solid rgba(229, 9, 20, 0.5);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
 }
 
 
