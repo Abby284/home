@@ -151,11 +151,16 @@
     <div id="searchResultsGrid"></div>
     <div class="loader" id="loader"><i class="fa-solid fa-spinner"></i></div>
   </div>
+  
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
+
+<script src="firebase.js"></script>
   <script>
     const API_KEY = '0d056e1910c8b138b66596088c28472c';
     const IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
-    <script type="module" src="firebase.js">
 
     // Fetch movies for home
     async function fetchMovies(url, containerId) {
