@@ -186,54 +186,61 @@
         modes: { repulse: { distance: 100 } }
       }
     });
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
 
-    let selectedMood = null;
-    document.querySelectorAll('.mood-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedMood = btn.dataset.mood;
-      });
+<!-- Link to your firebase.js (must be in same folder or adjust path) -->
+<script type="module">
+  import { auth } from './firebase.js';
+  import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+  let selectedMood = null;
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedMood = btn.dataset.mood;
     });
+  });
 
-    function submitForm(e) {
-      e.preventDefault();
-      if (!selectedMood) {
-        alert('Please select your mood!');
-        return;
-      }
-      localStorage.setItem('username', document.getElementById('username').value);
+  async function submitForm(e) {
+    e.preventDefault();
+    const email = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (!selectedMood) {
+      alert('Please select your mood!');
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      localStorage.setItem('username', user.displayName || email);
+      localStorage.setItem('email', user.email);
       localStorage.setItem('mood', selectedMood);
+
       window.location.href = 'Recommendations.html';
+    } catch (error) {
+      alert("Login failed: " + error.message);
     }
-
-    window.onload = function () {
-      google.accounts.id.initialize({
-        client_id: "144412321305-tnrgsui3cj1ueuenoe5eg43ek690qkft.apps.googleusercontent.com",
-        callback: handleCredentialResponse
-      });
-      google.accounts.id.renderButton(
-        document.getElementById("google-btn"),
-        { theme: "outline", size: "large", width: "100%" }
-      );
-    };
-
-    function handleCredentialResponse(response) {
-      const data = decodeJwt(response.credential);
-      localStorage.setItem('username', data.name);
-      localStorage.setItem('email', data.email);
-      alert(`Welcome ${data.name}`);
+  }
+  window.submitForm = submitForm;
+  const googleBtn = document.getElementById("google-btn");
+  const provider = new GoogleAuthProvider();
+  googleBtn.addEventListener("click", async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      localStorage.setItem('username', user.displayName);
+      localStorage.setItem('email', user.email);
       window.location.href = 'Recommendations.html';
+    } catch (error) {
+      alert("Google login failed: " + error.message);
     }
+  });
+</script>
 
-    function decodeJwt(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    }
-  </script>
 </body>
 </html>
