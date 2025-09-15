@@ -21,13 +21,12 @@
       font-family: 'Montserrat', Arial, sans-serif;
       background: var(--dark-bg);
       color: var(--text-light);
-      overflow: hidden; /* Hide scrollbars for the particle effect */
+      overflow: hidden;
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Background Particle Effect */
     .particle-container {
       position: fixed;
       top: 0;
@@ -41,7 +40,7 @@
 
     .particle {
       position: absolute;
-      background: rgba(255, 77, 77, 0.4); /* Red particles */
+      background: rgba(255, 77, 77, 0.4);
       border-radius: 50%;
       animation: floatParticles linear infinite;
       opacity: 0;
@@ -72,7 +71,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 15px 20px;
-      background: rgba(0,0,0,0.5); /* Semi-transparent header */
+      background: rgba(0,0,0,0.5);
       font-size: 1.3em;
       position: relative;
       z-index: 5;
@@ -132,15 +131,15 @@
       display: flex;
       flex-direction: column;
       cursor: grab;
-      transition: transform 0.3s ease, opacity 0.3s ease; /* For removing cards */
-      will-change: transform, opacity; /* Optimize for animations */
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      will-change: transform, opacity;
     }
 
     .movie-card.active {
-        z-index: 2; /* Ensure the top card is interactive */
+        z-index: 2;
     }
     .movie-card.inactive {
-        z-index: 1; /* Stack order for cards below */
+        z-index: 1;
     }
 
     .movie-poster {
@@ -180,7 +179,7 @@
       color: var(--text-fade);
     }
     .movie-summary.expanded {
-      max-height: 200px; /* Adjust based on content */
+      max-height: 200px;
       opacity: 1;
       margin-top: 10px;
     }
@@ -210,11 +209,10 @@
         transform: translateX(50%) rotate(180deg);
     }
 
-
     .buttons-container {
       display: flex;
       justify-content: center;
-      gap: 30px; /* Space between buttons */
+      gap: 30px;
       width: 100%;
       max-width: 350px;
       padding-bottom: 20px;
@@ -259,7 +257,6 @@
         box-shadow: 0 8px 25px rgba(255, 0, 100, 0.6);
     }
 
-
     /* Watchlist Popup */
     .popup-overlay {
         position: fixed;
@@ -268,7 +265,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.8);
-        display: none; /* Hidden by default */
+        display: none;
         justify-content: center;
         align-items: center;
         z-index: 10;
@@ -311,7 +308,7 @@
       flex-grow: 1;
       overflow-y: auto;
       margin-bottom: 15px;
-      padding-right: 10px; /* For scrollbar */
+      padding-right: 10px;
     }
     .watchlist-movie {
       display: flex;
@@ -348,7 +345,6 @@
         color: var(--text-fade);
     }
 
-
     #closeWatchlistBtn {
       background: var(--primary-red);
       border: none;
@@ -358,7 +354,7 @@
       border-radius: 25px;
       font-size: 1em;
       font-weight: 600;
-      align-self: flex-end; /* Pushes button to the right */
+      align-self: flex-end;
       box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -367,7 +363,6 @@
         box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
     }
 
-    /* Media Queries for Responsiveness */
     @media (max-width: 600px) {
       header {
         padding: 10px 15px;
@@ -444,11 +439,11 @@
     </div>
   </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
 
   <script>
-    const TMDB_API_KEY = "0d056e1910c8b138b66596088c28472c"; // Your TMDB API Key
+    const TMDB_API_KEY = "0d056e1910c8b138b66596088c28472c";
     const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
     const movieCardsContainer = document.getElementById("movieCardsContainer");
@@ -461,27 +456,25 @@
     const emptyWatchlistMsg = document.getElementById("emptyWatchlistMsg");
 
     let currentMovieIndex = 0;
-    let movies = []; // Stores all fetched movies
-    let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || []; // Load from local storage
+    let movies = [];
+    let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || [];
 
-    // Map moods to TMDB genre IDs
     const moodGenreMap = {
-      "Happy": 35, // Comedy
-      "Sad": 18, // Drama
-      "Romantic": 10749, // Romance
-      "Adventurous": 12, // Adventure
-      "Violent": 28, // Action
-      "Horny": 10749, // Romance (often overlaps, or could be a mix with other genres)
+      "Happy": 35,
+      "Sad": 18,
+      "Romantic": 10749,
+      "Adventurous": 12,
+      "Violent": 28,
+      "Horny": 10749,
     };
 
-    // --- Particle Effect (CSS/JS controlled) ---
     const particleContainer = document.querySelector('.particle-container');
     function createParticle() {
       const particle = document.createElement('div');
       particle.classList.add('particle');
       particleContainer.appendChild(particle);
 
-      const size = Math.random() * 4 + 2; // 2-6px
+      const size = Math.random() * 4 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
 
@@ -490,8 +483,8 @@
       const endX = Math.random() * window.innerWidth * (Math.random() > 0.5 ? 1.5 : -0.5);
       const endY = Math.random() * window.innerHeight * (Math.random() > 0.5 ? 1.5 : -0.5);
 
-      const duration = Math.random() * 15 + 10; // 10-25 seconds
-      const delay = Math.random() * 5; // 0-5 seconds delay
+      const duration = Math.random() * 15 + 10;
+      const delay = Math.random() * 5;
 
       particle.style.setProperty('--x1', `${startX}px`);
       particle.style.setProperty('--y1', `${startY}px`);
@@ -507,17 +500,14 @@
 
       particle.addEventListener('animationend', () => {
         particle.remove();
-        createParticle(); // Recreate particle to keep the effect going
+        createParticle();
       });
     }
 
-    // Create a few particles initially
     for (let i = 0; i < 50; i++) {
       createParticle();
     }
 
-
-    // --- TMDB API Functions ---
     async function fetchMovies(page = 1, genreId = null) {
       let url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&page=${page}`;
       if (genreId) {
@@ -540,7 +530,7 @@
       const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
 
       const card = document.createElement("div");
-      card.className = "movie-card inactive"; // Start as inactive, top one becomes active
+      card.className = "movie-card inactive";
       card.dataset.movieId = movie.id;
       card.dataset.title = movie.title;
       card.dataset.poster = posterPath;
@@ -562,10 +552,9 @@
         </div>
       `;
 
-      // Add event listener for expand arrow
       const expandArrow = card.querySelector('.expand-arrow');
       expandArrow.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent card drag if clicking arrow
+        e.stopPropagation();
         const summary = card.querySelector('.movie-summary');
         summary.classList.toggle('expanded');
         expandArrow.classList.toggle('rotated');
@@ -576,7 +565,7 @@
     }
 
     async function loadMoreMovies(genreId) {
-      const newMovies = await fetchMovies(movies.length / 20 + 1, genreId); // Simple page calculation
+      const newMovies = await fetchMovies(movies.length / 20 + 1, genreId);
       movies = movies.concat(newMovies);
       renderCards();
     }
@@ -596,10 +585,10 @@
     function updateCardStack() {
       const cards = Array.from(movieCardsContainer.children);
       cards.forEach((card, index) => {
-        if (index === cards.length - 1) { // Top card
+        if (index === cards.length - 1) {
           card.classList.add('active');
           card.classList.remove('inactive');
-          gsap.set(card, {clearProps: "all"}); // Reset any previous drag transforms
+          gsap.set(card, {clearProps: "all"});
           initializeDraggable(card);
         } else {
           card.classList.remove('active');
@@ -622,7 +611,6 @@
       }
     }
 
-    // --- Swipe/Drag Functionality with GSAP Draggable ---
     function initializeDraggable(card) {
       if (!card) return;
       if (Draggable.get(card)) {
@@ -685,7 +673,6 @@
       gsap.delayedCall(0.5, updateCardStack);
     }
 
-    // --- Button Actions ---
     nopeBtn.addEventListener('click', () => {
       const topCard = movieCardsContainer.lastElementChild;
       if (topCard) {
@@ -700,7 +687,6 @@
       }
     });
 
-    // --- Watchlist Popup Logic ---
     watchlistBtn.addEventListener('click', () => {
       watchlistContent.innerHTML = '';
       if (likedMovies.length === 0) {
@@ -733,8 +719,6 @@
         }
     });
 
-
-    // --- Initial Load with Mood ---
     document.addEventListener("DOMContentLoaded", async () => {
       const mood = localStorage.getItem('mood');
       const genreId = moodGenreMap[mood];
