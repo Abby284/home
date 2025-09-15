@@ -1,371 +1,728 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SwipeFLIX</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SwipeFlix — Mood + Global Recommendations</title>
+
+  <!-- GSAP + Draggable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+  <!-- Hammer for touch swipe -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  <!-- particles.js -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
-      overflow: hidden;
-      color: white;
+    :root{
+      --bg:#050405;
+      --card:#0f0f10;
+      --accent:#e50914;
+      --muted:#bdbdbd;
+      --glass: rgba(255,255,255,0.06);
+    }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    /* particles container */
+    #particles-js{position:fixed;inset:0;z-index:0;background: radial-gradient(circle at 20% 10%, rgba(229,9,20,0.06), transparent 10%), radial-gradient(circle at 80% 90%, rgba(229,9,20,0.03), transparent 20%), var(--bg);}
+    /* main app container */
+    .app{
+      position:relative; z-index:2;
+      height:100vh; width:100%;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+      box-sizing:border-box;
+    }
+    .panel{
+      width:min(980px,96vw);
+      height:min(820px,92vh);
+      position:relative;
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      gap:12px;
+      align-items:start;
     }
 
-    #particles {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      background: radial-gradient(circle at center, #111 0%, #000 100%);
+    header.top {
+      display:flex; align-items:center; justify-content:space-between;
+      color:var(--muted);
+    }
+    .brand { color:var(--accent); font-weight:700; font-size:1.35rem; display:flex; gap:8px; align-items:center; }
+    .controls { display:flex; gap:10px; align-items:center; }
+
+    /* industry toggle (pills) */
+    .toggle {
+      display:flex; gap:8px; flex-wrap:wrap;
+      background: transparent;
+      padding:6px;
+    }
+    .pill {
+      padding:8px 12px; border-radius:999px; cursor:pointer;
+      background:var(--glass); color:var(--muted); border:1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(8px);
+      transition: all .18s ease;
+      font-size:0.9rem;
+    }
+    .pill.active {
+      background: linear-gradient(135deg, rgba(229,9,20,0.14), rgba(255,255,255,0.02));
+      color: white; box-shadow: 0 8px 24px rgba(229,9,20,0.12); border:1px solid rgba(229,9,20,0.25);
     }
 
-    .app {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
+    /* main card area */
+    .stage {
+      position:relative; display:flex; justify-content:center; align-items:center;
+      gap:12px; height:100%;
     }
 
     .card-stack {
-      position: relative;
-      width: 300px;
-      height: 450px;
+      position:relative; width:360px; height:560px;
+      display:block;
+      perspective:1200px;
     }
 
     .movie-card {
-      width: 100%;
-      height: 100%;
-      border-radius: 20px;
-      overflow: hidden;
-      position: absolute;
-      top: 0;
-      left: 0;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      background: #111;
-      cursor: grab;
+      position:absolute; inset:0; width:100%; height:100%;
+      border-radius:18px; overflow:hidden; background:var(--card);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 6px 18px rgba(229,9,20,0.06);
+      display:flex; flex-direction:column;
+      transform-origin:center center;
+      cursor:grab;
+      user-select:none;
     }
-
-    .movie-card img {
-      width: 100%;
-      height: 70%;
-      object-fit: cover;
+    .movie-card img.poster {
+      width:100%; height:65%; object-fit:cover; display:block;
+      filter: saturate(1.02);
     }
-
-    .movie-info {
-      padding: 10px;
-      text-align: center;
+    .movie-meta {
+      padding:14px; flex:1; display:flex; flex-direction:column; gap:8px;
     }
+    h3.title{ margin:0; color:#fff; font-size:1.05rem; }
+    .meta-row{ color:var(--muted); font-size:0.9rem; display:flex; gap:8px; align-items:center; }
+    .overview{ color: #cfcfcf; font-size:0.86rem; line-height:1.2; max-height:3.4em; overflow:hidden; }
 
-    .movie-info h3 {
-      margin: 5px 0;
-      font-size: 18px;
-    }
-
-    .movie-info p {
-      margin: 0;
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .buttons {
-      margin-top: 20px;
-      display: flex;
-      gap: 40px;
-      z-index: 2;
-    }
-
-    .btn {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.2s;
-    }
-
-    .btn:hover {
-      transform: scale(1.2);
-    }
-
-    .btn.nope {
-      background: rgba(255, 0, 0, 0.8);
-      color: white;
-    }
-
-    .btn.love {
-      background: rgba(0, 200, 0, 0.8);
-      color: white;
-    }
-
-    .btn.watchlist {
-      background: rgba(0,0,255,0.8);
-      color: white;
-    }
-
+    /* Like / Nope badge */
     .badge {
-      position: absolute;
-      top: 20px;
-      padding: 10px 20px;
-      font-size: 22px;
-      font-weight: bold;
-      border: 3px solid;
-      border-radius: 8px;
-      opacity: 0;
-      transform: rotate(-20deg);
+      position:absolute; top:22px; padding:10px 16px; border-radius:8px; font-weight:700;
+      font-size:1.05rem; opacity:0; transform:rotate(-20deg) scale(.98);
+      pointer-events:none; z-index:40;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
     }
+    .badge.like { left:18px; color: #2fff6d; border:3px solid rgba(47,255,109,0.22); background: rgba(0,0,0,0.25); }
+    .badge.nope { right:18px; color: #ff6b6b; border:3px solid rgba(229,9,20,0.18); background: rgba(0,0,0,0.25); transform: rotate(20deg); }
 
-    .badge.like {
-      left: 20px;
-      color: #0f0;
-      border-color: #0f0;
+    /* floating side buttons */
+    .side-btn {
+      position:absolute; top:50%; transform:translateY(-50%); width:80px; height:80px; border-radius:999px; display:grid; place-items:center;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.04);
+      cursor:pointer; font-size:1.8rem; color: white; transition:all .18s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
+    .side-btn.left { left: calc(50% - 260px); } /* aligns left of card stack */
+    .side-btn.right { right: calc(50% - 260px); }
+    .side-btn:hover { transform: translateY(-50%) scale(1.06); box-shadow: 0 18px 40px rgba(229,9,20,0.12); }
 
-    .badge.nope {
-      right: 20px;
-      color: #f00;
-      border-color: #f00;
-      transform: rotate(20deg);
+    .side-btn.nope { color: var(--accent); border:1px solid rgba(229,9,20,0.18); box-shadow: 0 18px 40px rgba(229,9,20,0.06); }
+    .side-btn.love { color: #34ff7a; border:1px solid rgba(52,255,122,0.08); }
+
+    /* top-right watchlist */
+    .watchlist-btn{ position: absolute; right:12px; top:6px; background:transparent; border:1px solid rgba(255,255,255,0.04); padding:8px 10px; border-radius:10px; color:var(--muted); cursor:pointer; }
+    .watchlist-btn:hover{ color: white; border-color: rgba(229,9,20,0.2); }
+
+    /* mood modal (full-screen) */
+    .mood-modal {
+      position:fixed; inset:0; display:grid; place-items:center; z-index:60; background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.75));
+      backdrop-filter: blur(6px);
     }
-
-    .watchlist-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      overflow-y: auto;
-      z-index: 10;
+    .mood-card { width:min(720px,94vw); background: linear-gradient(180deg, rgba(12,12,13,0.95), rgba(6,6,7,0.95)); padding:28px; border-radius:16px; box-shadow: 0 30px 80px rgba(0,0,0,0.7); display:flex; flex-direction:column; gap:18px; border:1px solid rgba(229,9,20,0.08);}
+    .mood-grid { display:flex; gap:12px; flex-wrap:wrap; }
+    .mood-btn {
+      width:110px;height:110px;border-radius:14px;background:var(--glass);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);cursor:pointer;border:1px solid rgba(255,255,255,0.03);
+      transition:transform .18s ease, box-shadow .18s ease;
     }
+    .mood-btn:hover{ transform:translateY(-6px); box-shadow: 0 18px 40px rgba(229,9,20,0.06); }
+    .mood-btn.active{ background: linear-gradient(135deg, rgba(229,9,20,0.12), rgba(255,255,255,0.02)); color:white; box-shadow: 0 22px 60px rgba(229,9,20,0.12); border-color: rgba(229,9,20,0.18); }
+    .mood-emoji{ font-size:30px; }
+    .mood-label{ font-size:0.95rem; color:inherit; }
 
-    .watchlist-overlay.active {
-      display: flex;
+    /* watchlist overlay */
+    .watchlist-overlay{ position:fixed; inset:0; z-index:70; background: rgba(0,0,0,0.85); display:none; align-items:flex-start; justify-content:center; padding:28px; gap:12px; overflow:auto;}
+    .watchlist-overlay.active{ display:flex; }
+    .watchlist-panel{ width:min(840px,94vw); background: linear-gradient(180deg, #0b0b0c, #070708); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); }
+    .watchlist-grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px; }
+    .wl-item{ display:flex; gap:10px; background: rgba(255,255,255,0.02); padding:8px; border-radius:8px; align-items:center;}
+    .wl-item img{ width:72px; height:102px; object-fit:cover; border-radius:6px; }
+    .wl-empty{ color:var(--muted); padding:24px; text-align:center; }
+
+    /* responsive */
+    @media (max-width:880px){
+      .card-stack{ width:320px; height:520px; }
+      .side-btn.left{ left:12px; } .side-btn.right{ right:12px; }
     }
-
-    .watchlist-overlay h2 {
-      margin-bottom: 20px;
-    }
-
-    .watchlist-item {
-      display: flex;
-      gap: 15px;
-      margin: 10px 0;
-      background: rgba(255,255,255,0.05);
-      padding: 10px;
-      border-radius: 10px;
-      width: 90%;
-      align-items: center;
-    }
-
-    .watchlist-item img {
-      width: 80px;
-      border-radius: 8px;
-    }
-
-    .watchlist-item h4 {
-      margin: 0;
-    }
-
-    .close-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: red;
-      border: none;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
+    @media (max-width:520px){
+      .mood-btn{ width:86px; height:86px; }
+      .card-stack{ width:300px; height:480px; }
     }
   </style>
 </head>
 <body>
-  <div id="particles"></div>
+  <div id="particles-js"></div>
+
   <div class="app">
-    <div class="card-stack" id="cardStack"></div>
-    <div class="buttons">
-      <div class="btn nope" id="nopeBtn">✖</div>
-      <div class="btn love" id="loveBtn">❤</div>
-      <div class="btn watchlist" id="watchlistBtn">📃</div>
+    <div class="panel" role="main">
+      <header class="top">
+        <div class="brand">SwipeFlix <span style="font-size:0.85rem;color:var(--muted);font-weight:500">— mood-based global picks</span></div>
+
+        <div class="controls">
+          <div class="watchlist-btn" id="openWatchlist">Watchlist 📜</div>
+        </div>
+      </header>
+
+      <!-- industry toggle -->
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:0.95rem;color:var(--muted);">Industry</div>
+        <div class="toggle" id="industryToggle">
+          <div class="pill active" data-lang="">All</div>
+          <div class="pill" data-lang="en">Hollywood (EN)</div>
+          <div class="pill" data-lang="hi">Bollywood (HI)</div>
+          <div class="pill" data-lang="te">Tollywood (TE)</div>
+          <div class="pill" data-lang="ta">Kollywood (TA)</div>
+          <div class="pill" data-lang="ko">Korean (KO)</div>
+          <div class="pill" data-lang="ja">Japanese (JA)</div>
+        </div>
+      </div>
+
+      <!-- main stage -->
+      <div class="stage">
+        <div class="card-stack" id="cardStack" aria-live="polite" aria-label="Movie recommendation cards"></div>
+        <!-- floating side buttons -->
+        <div class="side-btn left nope" id="nopeBtn" title="Nope">✖</div>
+        <div class="side-btn right love" id="loveBtn" title="Like">❤</div>
+      </div>
+
+      <footer style="display:flex;justify-content:center;color:var(--muted);font-size:0.9rem;padding-bottom:6px;">
+        <div id="status">Choose a mood to begin</div>
+      </footer>
     </div>
   </div>
 
+  <!-- Mood modal (shows on load until user picks a mood) -->
+  <div class="mood-modal" id="moodModal" role="dialog" aria-modal="true">
+    <div class="mood-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <h2 style="color:var(--accent); margin:0 0 6px 0;">What's your mood today?</h2>
+          <div style="color:var(--muted); font-size:0.95rem;">Pick one mood — we'll use it to fetch movie genres with the best reviews.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="clearMood" style="background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:var(--muted);cursor:pointer">Reset</button>
+        </div>
+      </div>
+
+      <div class="mood-grid" style="margin-top:12px;">
+        <div class="mood-btn" data-mood="Happy"><div class="mood-emoji">😊</div><div class="mood-label">Happy</div></div>
+        <div class="mood-btn" data-mood="Sad"><div class="mood-emoji">😢</div><div class="mood-label">Sad</div></div>
+        <div class="mood-btn" data-mood="Romantic"><div class="mood-emoji">❤️</div><div class="mood-label">Romantic</div></div>
+        <div class="mood-btn" data-mood="Excited"><div class="mood-emoji">🏔️</div><div class="mood-label">Adventurous</div></div>
+        <div class="mood-btn" data-mood="Dark"><div class="mood-emoji">🔪</div><div class="mood-label">Dark</div></div>
+        <div class="mood-btn" data-mood="popular"><div class="mood-emoji">🔥</div><div class="mood-label">Popular</div></div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+        <button id="confirmMood" style="background:var(--accent);border:none;color:white;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer">Start Swiping</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- watchlist overlay -->
   <div class="watchlist-overlay" id="watchlistOverlay">
-    <h2>My Watchlist</h2>
-    <div id="watchlistContent"></div>
-    <button class="close-btn" id="closeWatchlistBtn">Close</button>
+    <div class="watchlist-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="margin:0;color:var(--accent);">Your Watchlist</h3>
+        <div style="display:flex;gap:8px;">
+          <button id="exportWatchlist" style="border-radius:8px;padding:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);cursor:pointer">Export</button>
+          <button id="closeWatchlist" style="border-radius:8px;padding:8px;background:var(--accent);border:none;color:white;cursor:pointer">Close</button>
+        </div>
+      </div>
+
+      <div class="watchlist-grid" id="watchlistGrid"></div>
+      <div id="wlEmpty" class="wl-empty" style="display:none">No movies yet — like some to add here.</div>
+    </div>
   </div>
 
   <script>
-    const API_KEY = "0d056e1910c8b138b66596088c28472c";
-    const BASE_URL = "https://api.themoviedb.org/3";
-    const IMG_URL = "https://image.tmdb.org/t/p/w500";
+  (function(){
+    // ------------------- CONFIG -------------------
+    const TMDB_KEY = "0d056e1910c8b138b66596088c28472c"; // your provided key
+    const TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+    const MAX_PAGES_PER_LANGUAGE = 3; // number of pages per fetch for variety
+    const MIN_VOTE_COUNT = 50; // lower threshold so global languages also show
+    const RESULTS_TARGET = 60; // how many unique movies to aim for
+    // mood -> TMDb genres
+    const MOOD_GENRES = {
+      Happy: [35, 10751, 10402],
+      Sad: [18, 10749],
+      Romantic: [10749, 35],
+      Excited: [28, 12, 878],
+      Dark: [27, 53, 9648],
+      popular: [] // special-case
+    };
+    // industry lang codes mapping
+    const INDUSTRY_LANGS = {
+      "": null, // All
+      "en": ["en"],
+      "hi": ["hi"],
+      "te": ["te"],
+      "ta": ["ta"],
+      "ko": ["ko"],
+      "ja": ["ja"]
+    };
 
+    // ------------------- UI refs -------------------
+    const moodModal = document.getElementById("moodModal");
+    const moodButtons = Array.from(document.querySelectorAll(".mood-btn"));
+    const confirmBtn = document.getElementById("confirmMood");
+    const clearMoodBtn = document.getElementById("clearMood");
+    const industryToggle = document.getElementById("industryToggle");
+    const pillEls = Array.from(document.querySelectorAll(".pill"));
     const cardStack = document.getElementById("cardStack");
+    const statusEl = document.getElementById("status");
     const nopeBtn = document.getElementById("nopeBtn");
     const loveBtn = document.getElementById("loveBtn");
-    const watchlistBtn = document.getElementById("watchlistBtn");
+    const openWatchlistBtn = document.getElementById("openWatchlist");
     const watchlistOverlay = document.getElementById("watchlistOverlay");
-    const watchlistContent = document.getElementById("watchlistContent");
-    const closeWatchlistBtn = document.getElementById("closeWatchlistBtn");
+    const watchlistGrid = document.getElementById("watchlistGrid");
+    const closeWatchlist = document.getElementById("closeWatchlist");
+    const exportWatchlist = document.getElementById("exportWatchlist");
+    const wlEmpty = document.getElementById("wlEmpty");
 
-    let movies = [];
-    let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+    // ------------------- state -------------------
+    let selectedMood = localStorage.getItem("mood") || null;
+    let selectedIndustry = localStorage.getItem("industry") || ""; // language code or empty for all
+    let moviePool = []; // unique movies fetched and processed
+    let usedMovieIds = new Set();
+    let watchlist = JSON.parse(localStorage.getItem("watchlist") || "[]");
 
-    async function fetchMovies(page=1){
-      const res = await fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}&page=${page}`);
-      const data = await res.json();
-      return data.results;
+    // helper: set status
+    function setStatus(t){ statusEl.innerText = t; }
+
+    // ------------------- particles config (red) -------------------
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 45, density: { enable: true, value_area: 900 } },
+        color: { value: "#e50914" },
+        shape: { type: "circle" },
+        opacity: { value: 0.8, random: true },
+        size: { value: 3, random: true },
+        move: { enable: true, speed: 1.4, direction: "none", out_mode: "out" }
+      },
+      interactivity: {
+        events: { onhover: { enable: true, mode: "repulse" } },
+        modes: { repulse: { distance: 120 } }
+      }
+    });
+
+    // ------------------- mood modal logic -------------------
+    function openMoodModal(){
+      // highlight previously selected mood if any
+      moodButtons.forEach(b=>{
+        b.classList.toggle("active", b.dataset.mood === selectedMood);
+      });
+      moodModal.style.display = "grid";
+    }
+    function closeMoodModal(){
+      moodModal.style.display = "none";
     }
 
-    function createCard(movie){
-      const card = document.createElement("div");
-      card.classList.add("movie-card");
-      card.innerHTML = `
-        <img src="${IMG_URL+movie.poster_path}" alt="${movie.title}">
-        <div class="movie-info">
-          <h3>${movie.title}</h3>
-          <p>⭐ ${movie.vote_average.toFixed(1)}</p>
-        </div>
+    moodButtons.forEach(b=>{
+      b.addEventListener("click", ()=>{
+        moodButtons.forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        selectedMood = b.dataset.mood;
+      });
+    });
+
+    clearMoodBtn.addEventListener("click", ()=>{
+      selectedMood = null;
+      moodButtons.forEach(b=>b.classList.remove("active"));
+      localStorage.removeItem("mood");
+    });
+
+    confirmBtn.addEventListener("click", async ()=>{
+      if(!selectedMood){ alert("Please pick a mood first."); return; }
+      // save and close
+      localStorage.setItem("mood", selectedMood);
+      closeMoodModal();
+      startFlow();
+    });
+
+    // ------------------- industry toggle logic -------------------
+    pillEls.forEach(p=>{
+      p.addEventListener("click", ()=>{
+        pillEls.forEach(x=>x.classList.remove("active"));
+        p.classList.add("active");
+        selectedIndustry = p.dataset.lang; // empty string for all
+        localStorage.setItem("industry", selectedIndustry);
+        // refresh pool if already started
+        startFlow(true);
+      });
+    });
+
+    // ------------------- TMDb fetching utilities -------------------
+    async function tmdbDiscover(params){
+      const url = new URL("https://api.themoviedb.org/3/discover/movie");
+      url.searchParams.set("api_key", TMDB_KEY);
+      url.searchParams.set("language", "en-US");
+      url.searchParams.set("include_adult", "false");
+      // append provided params object
+      Object.entries(params || {}).forEach(([k,v])=>{
+        if(v !== null && v !== undefined && v !== "") url.searchParams.set(k, v);
+      });
+      const res = await fetch(url.toString());
+      if(!res.ok) throw new Error("TMDb fetch failed: " + res.status);
+      const json = await res.json();
+      return json;
+    }
+
+    async function tmdbPopular(page=1){
+      const u = new URL("https://api.themoviedb.org/3/movie/popular");
+      u.searchParams.set("api_key", TMDB_KEY);
+      u.searchParams.set("language", "en-US");
+      u.searchParams.set("page", page);
+      const res = await fetch(u.toString());
+      if(!res.ok) throw new Error("TMDb popular fetch failed");
+      return res.json();
+    }
+
+    // fetch pool: multiple pages, multiple languages if requested
+    async function buildMoviePool(refresh=false){
+      try{
+        setStatus("Fetching movies for mood: " + selectedMood + " ...");
+        if(refresh){ moviePool = []; usedMovieIds.clear(); }
+        // special-case popular mood -> use /movie/popular across pages and languages
+        if(selectedMood === "popular"){
+          // fetch multiple pages of popular
+          const pages = Array.from({length:3}, (_,i)=>i+1);
+          for(const p of pages){
+            const json = await tmdbPopular(p);
+            for(const m of json.results || []) processMovieCandidate(m);
+            if(moviePool.length >= RESULTS_TARGET) break;
+          }
+        } else {
+          // normal moods -> use genre lists
+          const genres = (MOOD_GENRES[selectedMood] || []).join(",");
+          // languages to query (industry lang selection)
+          const langs = INDUSTRY_LANGS[selectedIndustry] || null; // null => all
+          // if langs is null, we'll query multiple language options sequentially to mix (en,hi,ko,ja,te,ta)
+          const langQueries = langs ? [langs] : [["en"],["hi"],["ko"],["ja"],["te"],["ta"]];
+
+          // For each language selection, fetch a couple pages
+          for(const langArr of langQueries){
+            // Build with_original_language param if langArr provided and length=1
+            const langCode = (Array.isArray(langArr) && langArr.length>0) ? langArr[0] : "";
+            for(let page=1; page<=MAX_PAGES_PER_LANGUAGE; page++){
+              const params = {
+                page: page,
+                sort_by: "vote_average.desc",
+                "vote_count.gte": MIN_VOTE_COUNT,
+                with_genres: genres,
+              };
+              if(langCode) params.with_original_language = langCode;
+              // fetch
+              const json = await tmdbDiscover(params);
+              for(const m of json.results || []) processMovieCandidate(m);
+              if(moviePool.length >= RESULTS_TARGET) break;
+            }
+            if(moviePool.length >= RESULTS_TARGET) break;
+          }
+        }
+
+        // final sort: vote_average desc, then popularity desc
+        moviePool.sort((a,b)=> {
+          const va = (b.vote_average||0) - (a.vote_average||0);
+          if(va !== 0) return va;
+          return (b.popularity||0) - (a.popularity||0);
+        });
+
+        setStatus(`Loaded ${moviePool.length} unique movies — swipe away!`);
+        return moviePool;
+      } catch(err){
+        console.error(err);
+        setStatus("Failed to fetch TMDb data. Check API key / network.");
+        alert("Error fetching movies: " + err.message);
+        return [];
+      }
+    }
+
+    function processMovieCandidate(m){
+      if(!m || !m.id) return;
+      if(usedMovieIds.has(m.id)) return;
+      // ignore movies without poster (optional)
+      if(!m.poster_path) return;
+      usedMovieIds.add(m.id);
+      moviePool.push(m);
+    }
+
+    // ------------------- render / card logic -------------------
+    function clearCards(){
+      cardStack.innerHTML = "";
+    }
+    function renderStack(){
+      clearCards();
+      // show top N from pool (we'll create all but animate in top)
+      for(let i=0;i<moviePool.length;i++){
+        const m = moviePool[i];
+        const card = createCardElement(m, i===0);
+        // push at top (so first in array is at bottom visually) -> but we'll add in order and set z-index
+        cardStack.appendChild(card);
+        card.style.zIndex = String(1000 - i);
+      }
+    }
+
+    function createCardElement(m, isActive){
+      const c = document.createElement("div");
+      c.className = "movie-card";
+      if(isActive) c.classList.add("active");
+      // card content
+      c.innerHTML = `
         <div class="badge like">LIKE</div>
         <div class="badge nope">NOPE</div>
+        <img class="poster" loading="lazy" src="${TMDB_IMG + m.poster_path}" alt="${escapeHtml(m.title)}" />
+        <div class="movie-meta">
+          <h3 class="title">${escapeHtml(m.title || m.original_title || "Untitled")}</h3>
+          <div class="meta-row">⭐ ${(m.vote_average||0).toFixed(1)} • ${m.release_date?m.release_date.slice(0,4):"—"}</div>
+          <div class="overview">${escapeHtml(m.overview || "")}</div>
+        </div>
       `;
-      cardStack.appendChild(card);
+      // attach drag / swipe
+      attachDraggable(c);
+      // attach hammer for quick swipes
+      attachHammer(c);
+      return c;
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // Attach GSAP Draggable behavior
+    function attachDraggable(card){
+      // prevent duplicate Draggable instances
+      try { const inst = Draggable.get(card); if(inst) inst.kill(); } catch(e){}
 
       Draggable.create(card, {
         type: "x,y",
+        edgeResistance: 0.7,
+        bounds: window,
         inertia: true,
         onDrag: function(){
-          let likeBadge = card.querySelector(".badge.like");
-          let nopeBadge = card.querySelector(".badge.nope");
-          let opacity = Math.min(Math.abs(this.x) / 100, 1);
+          // rotate based on x
+          gsap.to(card, { rotation: this.x / 12, duration: 0.07 });
+          const like = card.querySelector(".badge.like");
+          const nope = card.querySelector(".badge.nope");
+          const op = Math.min(Math.abs(this.x) / 140, 1);
           if(this.x > 0){
-            likeBadge.style.opacity = opacity;
-            nopeBadge.style.opacity = 0;
+            like.style.opacity = op;
+            nope.style.opacity = 0;
           } else {
-            nopeBadge.style.opacity = opacity;
-            likeBadge.style.opacity = 0;
+            nope.style.opacity = op;
+            like.style.opacity = 0;
           }
-          gsap.to(card,{rotation:this.x/20});
         },
         onDragEnd: function(){
-          if(Math.abs(this.x) > 150){
-            if(this.x > 0){ handleSwipe(card,"right"); }
-            else { handleSwipe(card,"left"); }
+          const threshold = window.innerWidth * 0.18;
+          if(this.x > threshold){
+            performSwipe(card, "right");
+          } else if(this.x < -threshold){
+            performSwipe(card, "left");
           } else {
-            gsap.to(card,{x:0,y:0,rotation:0,duration:0.5});
-            card.querySelector(".badge.like").style.opacity=0;
-            card.querySelector(".badge.nope").style.opacity=0;
+            // snap back
+            gsap.to(card, { x:0, y:0, rotation:0, duration:0.4, ease:"elastic.out(1,0.5)" });
+            card.querySelector(".badge.like").style.opacity = 0;
+            card.querySelector(".badge.nope").style.opacity = 0;
           }
         }
       });
     }
 
-    function handleSwipe(card,dir){
-      if(dir==="right"){
-        const title = card.querySelector("h3").innerText;
-        const poster = card.querySelector("img").src;
-        const rating = card.querySelector("p").innerText;
-        if(!watchlist.some(m=>m.title===title)){
-          watchlist.push({title,poster,rating});
-          localStorage.setItem("watchlist",JSON.stringify(watchlist));
+    // quick touch swipe via Hammer
+    function attachHammer(card){
+      const mc = new Hammer(card);
+      mc.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+      mc.on("swipeleft", ()=>performSwipe(card, "left"));
+      mc.on("swiperight", ()=>performSwipe(card, "right"));
+    }
+
+    // Perform swipe animation, update watchlist on right
+    function performSwipe(card, dir){
+      const likeBadge = card.querySelector(".badge.like");
+      const nopeBadge = card.querySelector(".badge.nope");
+      const badge = dir === "right" ? likeBadge : nopeBadge;
+      // badge flash
+      gsap.fromTo(badge, { scale:1.15, opacity:1 }, { scale:1, opacity:0, duration:0.45, ease:"power2.out" });
+      // animate card away
+      gsap.to(card, {
+        x: dir === "right" ? window.innerWidth : -window.innerWidth,
+        y: -120,
+        rotation: dir === "right" ? 20 : -20,
+        duration: 0.6,
+        ease: "power2.in",
+        onComplete: () => {
+          // Add to watchlist if liked
+          if(dir === "right") addToWatchlistFromCard(card);
+          // remove the card element
+          card.remove();
+          // after removal, make next card active with bounce
+          const next = cardStack.querySelector(".movie-card");
+          if(next){
+            next.classList.add("active");
+            gsap.fromTo(next, { scale:0.88, opacity:0 }, { scale:1, opacity:1, duration:0.6, ease: "bounce.out" });
+          } else {
+            // if pool depleted, show status
+            setStatus("No more movies — try another industry or mood.");
+          }
+          // lazy-load more if low
+          if(cardStack.children.length < 4){
+            // attempt to pull more from the server (if we had not filled RESULTS_TARGET)
+            // No-op here since we prepopulated many; could call buildMoviePool(true) to refresh different industry.
+          }
         }
-      }
-      gsap.to(card,{x:dir==="right"?window.innerWidth:-window.innerWidth,y:-100,rotation:dir==="right"?20:-20,duration:0.6,ease:"power2.in",onComplete:()=>{
-        card.remove();
-        if(cardStack.children.length<3) loadMoreMovies();
-      }});
-    }
-
-    function renderCards(){
-      cardStack.innerHTML="";
-      movies.forEach(movie=>createCard(movie));
-      const cards = document.querySelectorAll(".movie-card");
-      cards.forEach((c,i)=>{c.style.zIndex=movies.length-i;});
-    }
-
-    function renderWatchlist(){
-      watchlistContent.innerHTML="";
-      if(watchlist.length===0){
-        watchlistContent.innerHTML="<p>No movies added yet.</p>";
-      } else {
-        watchlist.forEach(m=>{
-          const item=document.createElement("div");
-          item.classList.add("watchlist-item");
-          item.innerHTML=`<img src="${m.poster}"><div><h4>${m.title}</h4><p>${m.rating}</p></div>`;
-          watchlistContent.appendChild(item);
-        });
-      }
-    }
-
-    watchlistBtn.addEventListener("click",()=>{renderWatchlist();watchlistOverlay.classList.add("active");});
-    closeWatchlistBtn.addEventListener("click",()=>watchlistOverlay.classList.remove("active"));
-
-    nopeBtn.addEventListener("click",()=>{
-      const c=document.querySelector(".movie-card:last-child");
-      if(c){
-        const nopeBadge = c.querySelector(".badge.nope");
-        gsap.fromTo(nopeBadge,{opacity:1,scale:1.2},{opacity:0,scale:1,duration:0.5});
-        gsap.to(c,{x:-window.innerWidth,y:-100,rotation:-20,duration:0.6,ease:"power2.in",onComplete:()=>handleSwipe(c,"left")});
-      }
-    });
-
-    loveBtn.addEventListener("click",()=>{
-      const c=document.querySelector(".movie-card:last-child");
-      if(c){
-        const likeBadge = c.querySelector(".badge.like");
-        gsap.fromTo(likeBadge,{opacity:1,scale:1.2},{opacity:0,scale:1,duration:0.5});
-        gsap.to(c,{x:window.innerWidth,y:-100,rotation:20,duration:0.6,ease:"power2.in",onComplete:()=>handleSwipe(c,"right")});
-      }
-    });
-
-    async function loadMoreMovies(){
-      const newMovies = await fetchMovies(Math.floor(Math.random()*10)+1);
-      movies.push(...newMovies);
-      renderCards();
-    }
-
-    (async()=>{
-      movies = await fetchMovies();
-      renderCards();
-    })();
-
-    // Particle background
-    const canvas = document.createElement("canvas");
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
-    document.getElementById("particles").appendChild(canvas);
-    const ctx=canvas.getContext("2d");
-    let particles=[];
-    for(let i=0;i<100;i++){
-      particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5});
-    }
-    function drawParticles(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle="white";
-      particles.forEach(p=>{
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fill();
-        p.x+=p.dx;p.y+=p.dy;
-        if(p.x<0||p.x>canvas.width) p.dx*=-1;
-        if(p.y<0||p.y>canvas.height) p.dy*=-1;
       });
-      requestAnimationFrame(drawParticles);
     }
-    drawParticles();
+
+    // when pressing side buttons we want to mimic a swipe with tilt+fly + badge flash
+    nopeBtn.addEventListener("click", ()=>{
+      const top = getTopCard();
+      if(!top) return;
+      const nopeBadge = top.querySelector(".badge.nope");
+      gsap.fromTo(nopeBadge, { scale:1.12, opacity:1 }, { scale:1, opacity:0, duration:0.45 });
+      gsap.to(top, { x:-window.innerWidth, y:-120, rotation:-20, duration:0.6, ease:"power2.in", onComplete: ()=>{ performSwipeCleanup(top,"left"); } });
+    });
+
+    loveBtn.addEventListener("click", ()=>{
+      const top = getTopCard();
+      if(!top) return;
+      const likeBadge = top.querySelector(".badge.like");
+      gsap.fromTo(likeBadge, { scale:1.12, opacity:1 }, { scale:1, opacity:0, duration:0.45 });
+      gsap.to(top, { x:window.innerWidth, y:-120, rotation:20, duration:0.6, ease:"power2.in", onComplete: ()=>{ performSwipeCleanup(top,"right"); } });
+    });
+
+    // cleanup after programmatic swipe animation
+    function performSwipeCleanup(card, dir){
+      if(dir === "right") addToWatchlistFromCard(card);
+      card.remove();
+      const next = cardStack.querySelector(".movie-card");
+      if(next){
+        next.classList.add("active");
+        gsap.fromTo(next, { scale:0.88, opacity:0 }, { scale:1, opacity:1, duration:0.6, ease: "bounce.out" });
+      } else setStatus("No more movies — change industry/mood.");
+    }
+
+    function getTopCard(){
+      // topmost is the last .movie-card added (the one visually on top)
+      // Our creation order places first at top; but we always select the first element in DOM which is the top one rendered.
+      return cardStack.querySelector(".movie-card");
+    }
+
+    // ------------------- watchlist management -------------------
+    function addToWatchlistFromCard(card){
+      try{
+        const title = card.querySelector(".title")?.innerText || "Untitled";
+        const poster = card.querySelector(".poster")?.src || "";
+        const ratingText = card.querySelector(".meta-row")?.innerText || "";
+        // dedupe by title (or better by id if embedded)
+        if(!watchlist.some(w=>w.title === title)){
+          watchlist.unshift({ title, poster, ratingText, added: new Date().toISOString() });
+          localStorage.setItem("watchlist", JSON.stringify(watchlist));
+        }
+      } catch(e){ console.warn("watchlist add failed", e); }
+    }
+
+    openWatchlistBtn.addEventListener("click", ()=>{
+      populateWatchlistUI();
+      watchlistOverlay.classList.add("active");
+    });
+    closeWatchlist.addEventListener("click", ()=> watchlistOverlay.classList.remove("active"));
+
+    function populateWatchlistUI(){
+      watchlistGrid.innerHTML = "";
+      if(!watchlist || watchlist.length === 0){
+        wlEmpty.style.display = "block";
+        return;
+      } else wlEmpty.style.display = "none";
+
+      watchlist.forEach(item=>{
+        const el = document.createElement("div");
+        el.className = "wl-item";
+        el.innerHTML = `<img src="${item.poster}" alt="${escapeHtml(item.title)}" /><div style="flex:1"><div style="font-weight:600;color:#fff">${escapeHtml(item.title)}</div><div style="color:var(--muted);font-size:0.9rem">${escapeHtml(item.ratingText)}</div></div>`;
+        watchlistGrid.appendChild(el);
+      });
+    }
+
+    exportWatchlist.addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify(watchlist, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "swipeflix_watchlist.json"; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // ------------------- main flow: startFlow -------------------
+    async function startFlow(refresh=false){
+      // ensure mood selected
+      selectedMood = selectedMood || localStorage.getItem("mood");
+      if(!selectedMood){
+        openMoodModal();
+        return;
+      }
+
+      // get currently selected industry pill
+      const activePill = document.querySelector(".pill.active");
+      selectedIndustry = activePill ? (activePill.dataset.lang || "") : "";
+      localStorage.setItem("industry", selectedIndustry);
+      // reset containers if refresh requested
+      if(refresh){
+        moviePool = []; usedMovieIds.clear();
+        setStatus("Refreshing movies for " + selectedMood + " …");
+      } else {
+        setStatus("Preparing recommendations for " + selectedMood + " …");
+      }
+
+      // build pool
+      await buildMoviePool(refresh);
+      if(moviePool.length === 0){
+        setStatus("No movies found for this selection. Try a different industry or mood.");
+        return;
+      }
+      // render
+      renderStack();
+      // make sure top card has bounce animation
+      const top = cardStack.querySelector(".movie-card");
+      if(top){
+        gsap.fromTo(top, { scale:0.88, opacity:0 }, { scale:1, opacity:1, duration:0.6, ease:"bounce.out" });
+        top.classList.add("active");
+      }
+    }
+
+    // ------------------- initial open / auto-run -------------------
+    // If localStorage has mood, skip modal and start
+    if(localStorage.getItem("mood")){
+      selectedMood = localStorage.getItem("mood");
+      // set pill active if stored industry
+      const storedLang = localStorage.getItem("industry") || "";
+      pillEls.forEach(p=> p.classList.toggle("active", p.dataset.lang === storedLang) );
+      // run
+      startFlow();
+      // ensure modal hidden
+      moodModal.style.display = "none";
+    } else {
+      openMoodModal();
+    }
+
+    // ------------------- utility: multi-page refresh on demand (if user wants new pool) -------------------
+    // (option left for future: a "refresh" button can call startFlow(true))
+
+    // ------------------- Accessibility / safety: handle missing poster gracefully -------------------
+    // Already filtered posters in processMovieCandidate, but fallback checks in createCardElement.
+
+  })();
   </script>
 </body>
 </html>
