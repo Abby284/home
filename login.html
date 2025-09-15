@@ -18,7 +18,6 @@
       overflow: hidden;
     }
 
-    /* Particle canvas full screen */
     #particles-js {
       position: absolute;
       width: 100%;
@@ -33,16 +32,11 @@
       max-width: 400px;
       padding: 40px;
       border-radius: 20px;
-
-      /* Matte black glass effect */
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(15px);
       -webkit-backdrop-filter: blur(15px);
-
-      /* Red glowing border */
       border: 1px solid rgba(229, 9, 20, 0.5);
       box-shadow: 0 0 20px rgba(229, 9, 20, 0.7);
-
       animation: fadeIn 0.8s ease-in-out;
     }
 
@@ -54,34 +48,17 @@
     h2 {
       text-align: center;
       margin-bottom: 25px;
-      color: #e50914; /* Netflix red */
+      color: #e50914;
       font-size: 2rem;
-    }
-
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      outline: none;
-      transition: border 0.3s ease;
-    }
-    input:focus {
-      border: 1px solid #e50914;
-      box-shadow: 0 0 8px #e50914;
     }
 
     .mood-section {
       text-align: center;
-      margin: 25px 0 10px;
+      margin: 25px 0 35px;
     }
     .mood-title {
       font-size: 1.2rem;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       color: #ccc;
     }
     .mood-options {
@@ -105,7 +82,7 @@
       color: white;
     }
     .mood-btn:hover {
-      transform: scale(1.2);
+      transform: scale(1.1);
       box-shadow: 0 0 12px #e50914;
     }
     .mood-btn.active {
@@ -113,63 +90,43 @@
       box-shadow: 0 0 15px #e50914;
     }
 
-    button[type="submit"] {
-      width: 100%;
-      padding: 15px;
-      background: #e50914;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      color: white;
-      transition: background 0.3s;
-      margin-top: 25px;
-    }
-    button[type="submit"]:hover {
-      background: #b20710;
+    #google-btn {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
     }
 
     .back-link {
       display: block;
-      margin-top: 20px;
+      margin-top: 25px;
       text-align: center;
       color: #ccc;
       text-decoration: none;
     }
     .back-link:hover { color: #fff; }
-
-    #google-btn { margin-top: 20px; display: flex; justify-content: center; }
   </style>
 </head>
 <body>
-  <!-- Particle background -->
   <div id="particles-js"></div>
 
   <div class="login-container">
     <h2>SwipeFlix 🎭</h2>
-    <form onsubmit="submitForm(event)">
-      <input type="text" id="username" placeholder="Username" required>
-      <input type="password" id="password" placeholder="Password" required>
-      <div class="mood-section">
-        <div class="mood-title">What's your mood today?</div>
-        <div class="mood-options">
-          <button type="button" class="mood-btn" data-mood="Happy">😊</button>
-          <button type="button" class="mood-btn" data-mood="Sad">😢</button>
-          <button type="button" class="mood-btn" data-mood="Romantic">❤️</button>
-          <button type="button" class="mood-btn" data-mood="Adventurous">🏔️</button>
-          <button type="button" class="mood-btn" data-mood="Violent">🔪</button>
-          <button type="button" class="mood-btn" data-mood="Horny">🔥</button>
-        </div>
+    <div class="mood-section">
+      <div class="mood-title">What's your mood today?</div>
+      <div class="mood-options">
+        <button type="button" class="mood-btn" data-mood="Happy">😊</button>
+        <button type="button" class="mood-btn" data-mood="Sad">😢</button>
+        <button type="button" class="mood-btn" data-mood="Romantic">❤️</button>
+        <button type="button" class="mood-btn" data-mood="Adventurous">🏔️</button>
+        <button type="button" class="mood-btn" data-mood="Violent">🔪</button>
+        <button type="button" class="mood-btn" data-mood="Horny">🔥</button>
       </div>
-      <button type="submit">Continue</button>
-    </form>
-
+    </div>
+    
     <div id="google-btn"></div>
     <a class="back-link" href="index.html">⬅ Back to Home</a>
   </div>
 
-  <!-- Particle JS -->
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script>
     particlesJS("particles-js", {
@@ -193,19 +150,9 @@
         document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedMood = btn.dataset.mood;
+        localStorage.setItem('mood', selectedMood);
       });
     });
-
-    function submitForm(e) {
-      e.preventDefault();
-      if (!selectedMood) {
-        alert('Please select your mood!');
-        return;
-      }
-      localStorage.setItem('username', document.getElementById('username').value);
-      localStorage.setItem('mood', selectedMood);
-      window.location.href = 'Recommendations.html';
-    }
 
     window.onload = function () {
       google.accounts.id.initialize({
@@ -219,10 +166,13 @@
     };
 
     function handleCredentialResponse(response) {
+      if (!selectedMood) {
+        alert('Please select your mood before signing in!');
+        return;
+      }
       const data = decodeJwt(response.credential);
       localStorage.setItem('username', data.name);
       localStorage.setItem('email', data.email);
-      alert(`Welcome ${data.name}`);
       window.location.href = 'Recommendations.html';
     }
 
