@@ -1,404 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SwipeFLIX</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
   <style>
-    :root {
-      --primary-red: #ff4d4d;
-      --dark-bg: #111;
-      --card-bg: #1a1a1a;
-      --text-light: #f0f0f0;
-      --text-fade: #aaa;
-    }
-
     body {
       margin: 0;
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: var(--dark-bg);
-      color: var(--text-light);
+      font-family: Arial, sans-serif;
+      background: #000;
       overflow: hidden;
+      color: white;
+    }
+
+    #particles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: radial-gradient(circle at center, #111 0%, #000 100%);
+    }
+
+    .app {
+      position: relative;
+      width: 100%;
       height: 100vh;
       display: flex;
       flex-direction: column;
-    }
-
-    /* Particle Effect */
-    .particle-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .particle {
-      position: absolute;
-      background: rgba(255, 77, 77, 0.4);
-      border-radius: 50%;
-      animation: floatParticles linear infinite;
-      opacity: 0;
-      transform: scale(0);
-    }
-    @keyframes floatParticles {
-      0% { transform: translate(var(--x1, 0), var(--y1, 0)) scale(0); opacity: 0; }
-      10% { opacity: 0.8; transform: translate(var(--x2, 0), var(--y2, 0)) scale(1); }
-      90% { opacity: 0.8; transform: translate(var(--x3, 0), var(--y3, 0)) scale(0.8); }
-      100% { transform: translate(var(--x4, 0), var(--y4, 0)) scale(0); opacity: 0; }
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: rgba(0,0,0,0.5);
-      font-size: 1.3em;
-      position: relative;
-      z-index: 5;
-    }
-    header h1 {
-        margin: 0;
-        font-size: 1.5em;
-        color: var(--primary-red);
-        font-weight: 700;
-    }
-    #watchlistBtn {
-      background: var(--primary-red);
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.9em;
-      border-radius: 25px;
-      cursor: pointer;
-      color: var(--text-light);
-      font-weight: 600;
-      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    #watchlistBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5); }
-
-    .main-content {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      position: relative;
-      padding: 20px;
+      z-index: 1;
     }
-    #movieCardsContainer {
+
+    .card-stack {
       position: relative;
-      width: 350px;
-      max-width: 90vw;
-      height: 550px;
-      margin-bottom: 30px;
+      width: 300px;
+      height: 450px;
     }
+
     .movie-card {
-      position: absolute;
       width: 100%;
       height: 100%;
-      top: 0;
-      left: 0;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-      background: var(--card-bg);
-      display: flex;
-      flex-direction: column;
-      cursor: grab;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      will-change: transform, opacity;
-    }
-    .movie-card.active { z-index: 2; }
-    .movie-card.inactive { z-index: 1; }
-
-    .movie-poster { width: 100%; height: 70%; object-fit: cover; }
-    .movie-info {
-      padding: 15px;
-      background: rgba(0,0,0,0.85);
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-    }
-    .movie-info h3 { margin: 0 0 5px 0; color: var(--primary-red); font-size: 1.4em; }
-    .movie-info p.rating { margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-fade); }
-    .movie-summary {
-      font-size: 0.85em;
-      line-height: 1.4;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
-      opacity: 0;
-      color: var(--text-fade);
-    }
-    .movie-summary.expanded { max-height: 200px; opacity: 1; margin-top: 10px; }
-    .expand-arrow {
       position: absolute;
-      bottom: 5px;
-      right: 50%;
-      transform: translateX(50%);
-      width: 30px;
-      height: 30px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.2em;
-      transition: transform 0.3s ease;
+      top: 0;
+      left: 0;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      background: #111;
+      cursor: grab;
     }
-    .expand-arrow svg { fill: var(--text-light); width: 15px; height: 15px; }
-    .expand-arrow.rotated { transform: translateX(50%) rotate(180deg); }
 
-    .buttons-container {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
+    .movie-card img {
       width: 100%;
-      max-width: 350px;
-      padding-bottom: 20px;
-      position: relative;
-      z-index: 5;
+      height: 70%;
+      object-fit: cover;
     }
-    .action-button {
-      width: 70px;
-      height: 70px;
+
+    .movie-info {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .movie-info h3 {
+      margin: 5px 0;
+      font-size: 18px;
+    }
+
+    .movie-info p {
+      margin: 0;
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 40px;
+      z-index: 2;
+    }
+
+    .btn {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      border: none;
-      font-size: 2em;
-      cursor: pointer;
-      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+      font-size: 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
     }
-    .action-button:hover { transform: translateY(-3px); }
-    #nopeBtn { background: rgba(255, 0, 0, 0.7); box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4); }
-    #loveBtn { background: rgba(255, 0, 100, 0.7); box-shadow: 0 5px 20px rgba(255, 0, 100, 0.4); }
 
-    /* Watchlist Popup */
-    .popup-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.8); display: none;
-      justify-content: center; align-items: center; z-index: 10;
-      opacity: 0; transition: opacity 0.3s ease;
+    .btn:hover {
+      transform: scale(1.2);
     }
-    .popup-overlay.active { display: flex; opacity: 1; }
-    #watchlistPopup {
-      background: var(--card-bg); padding: 25px; border-radius: 15px;
-      width: 90%; max-width: 450px; max-height: 80vh;
-      display: flex; flex-direction: column;
-      box-shadow: 0 10px 30px rgba(255, 77, 77, 0.3);
-      transform: translateY(-20px); opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
+
+    .btn.nope {
+      background: rgba(255, 0, 0, 0.8);
+      color: white;
     }
-    .popup-overlay.active #watchlistPopup { transform: translateY(0); opacity: 1; }
-    #watchlistPopup h2 {
-      margin-top: 0; color: var(--primary-red); font-weight: 700;
-      border-bottom: 1px solid rgba(255, 77, 77, 0.2);
-      padding-bottom: 10px; margin-bottom: 15px;
+
+    .btn.love {
+      background: rgba(0, 200, 0, 0.8);
+      color: white;
     }
-    #watchlistContent { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; }
-    .watchlist-movie { display: flex; align-items: center; margin-bottom: 12px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 8px; }
-    .watchlist-movie img { width: 60px; height: 90px; object-fit: cover; border-radius: 6px; margin-right: 15px; }
-    .watchlist-movie-details h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-light); }
-    .watchlist-movie-details p { margin: 0; font-size: 0.85em; color: var(--text-fade); }
-    #closeWatchlistBtn {
-      background: var(--primary-red); border: none; padding: 10px 20px;
-      color: white; cursor: pointer; border-radius: 25px;
-      font-size: 1em; font-weight: 600; align-self: flex-end;
+
+    .btn.watchlist {
+      background: rgba(0,0,255,0.8);
+      color: white;
+    }
+
+    .badge {
+      position: absolute;
+      top: 20px;
+      padding: 10px 20px;
+      font-size: 22px;
+      font-weight: bold;
+      border: 3px solid;
+      border-radius: 8px;
+      opacity: 0;
+      transform: rotate(-20deg);
+    }
+
+    .badge.like {
+      left: 20px;
+      color: #0f0;
+      border-color: #0f0;
+    }
+
+    .badge.nope {
+      right: 20px;
+      color: #f00;
+      border-color: #f00;
+      transform: rotate(20deg);
+    }
+
+    .watchlist-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .watchlist-overlay.active {
+      display: flex;
+    }
+
+    .watchlist-overlay h2 {
+      margin-bottom: 20px;
+    }
+
+    .watchlist-item {
+      display: flex;
+      gap: 15px;
+      margin: 10px 0;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 10px;
+      width: 90%;
+      align-items: center;
+    }
+
+    .watchlist-item img {
+      width: 80px;
+      border-radius: 8px;
+    }
+
+    .watchlist-item h4 {
+      margin: 0;
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: red;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="particle-container"></div>
-  <header>
-    <h1>Swipeflix</h1>
-    <button id="watchlistBtn">Watchlist</button>
-  </header>
-
-  <div class="main-content">
-    <div id="movieCardsContainer"></div>
-    <div class="buttons-container">
-      <button id="nopeBtn" class="action-button">✖</button>
-      <button id="loveBtn" class="action-button">❤</button>
+  <div id="particles"></div>
+  <div class="app">
+    <div class="card-stack" id="cardStack"></div>
+    <div class="buttons">
+      <div class="btn nope" id="nopeBtn">✖</div>
+      <div class="btn love" id="loveBtn">❤</div>
+      <div class="btn watchlist" id="watchlistBtn">📃</div>
     </div>
   </div>
 
-  <div class="popup-overlay" id="watchlistOverlay">
-    <div id="watchlistPopup">
-      <h2>Your Watchlist</h2>
-      <div id="watchlistContent">
-        <p id="emptyWatchlistMsg" style="text-align: center; color: var(--text-fade);">No movies in your watchlist yet!</p>
-      </div>
-      <button id="closeWatchlistBtn">Close</button>
-    </div>
+  <div class="watchlist-overlay" id="watchlistOverlay">
+    <h2>My Watchlist</h2>
+    <div id="watchlistContent"></div>
+    <button class="close-btn" id="closeWatchlistBtn">Close</button>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/Draggable.min.js"></script>
 
   <script>
-    const TMDB_API_KEY = "0d056e1910c8b138b66596088c28472c";
-    const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+    const API_KEY = "0d056e1910c8b138b66596088c28472c";
+    const BASE_URL = "https://api.themoviedb.org/3";
+    const IMG_URL = "https://image.tmdb.org/t/p/w500";
 
-    const movieCardsContainer = document.getElementById("movieCardsContainer");
+    const cardStack = document.getElementById("cardStack");
     const nopeBtn = document.getElementById("nopeBtn");
     const loveBtn = document.getElementById("loveBtn");
     const watchlistBtn = document.getElementById("watchlistBtn");
     const watchlistOverlay = document.getElementById("watchlistOverlay");
     const watchlistContent = document.getElementById("watchlistContent");
     const closeWatchlistBtn = document.getElementById("closeWatchlistBtn");
-    const emptyWatchlistMsg = document.getElementById("emptyWatchlistMsg");
 
     let movies = [];
-    let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || [];
+    let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
 
-    // Particle Effect
-    const particleContainer = document.querySelector('.particle-container');
-    function createParticle() {
-      const particle = document.createElement('div');
-      particle.classList.add('particle');
-      particleContainer.appendChild(particle);
-      const size = Math.random() * 4 + 2;
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      const startX = Math.random() * window.innerWidth;
-      const startY = Math.random() * window.innerHeight;
-      const endX = Math.random() * window.innerWidth * (Math.random() > 0.5 ? 1.5 : -0.5);
-      const endY = Math.random() * window.innerHeight * (Math.random() > 0.5 ? 1.5 : -0.5);
-      particle.style.setProperty('--x1', `${startX}px`);
-      particle.style.setProperty('--y1', `${startY}px`);
-      particle.style.setProperty('--x4', `${endX}px`);
-      particle.style.setProperty('--y4', `${endY}px`);
-      particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
-      particle.style.animationDelay = `${Math.random() * 5}s`;
-      particle.addEventListener('animationend', () => { particle.remove(); createParticle(); });
+    async function fetchMovies(page=1){
+      const res = await fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}&page=${page}`);
+      const data = await res.json();
+      return data.results;
     }
-    for (let i = 0; i < 50; i++) createParticle();
 
-    // API
-    async function fetchMovies(page = 1) {
-      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&page=${page}`;
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        return data.results;
-      } catch (e) { return []; }
-    }
-    function createMovieCardHTML(movie) {
-      const posterPath = movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Poster';
-      const overview = movie.overview || "No summary available.";
-      const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+    function createCard(movie){
       const card = document.createElement("div");
-      card.className = "movie-card inactive";
-      card.dataset.id = movie.id;
+      card.classList.add("movie-card");
       card.innerHTML = `
-        <img class="movie-poster" src="${posterPath}" />
+        <img src="${IMG_URL+movie.poster_path}" alt="${movie.title}">
         <div class="movie-info">
-          <div><h3>${movie.title}</h3><p class="rating">⭐ ${rating}</p></div>
-          <div class="movie-summary">${overview}</div>
-          <div class="expand-arrow"><svg viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/></svg></div>
-        </div>`;
-      card.querySelector('.expand-arrow').addEventListener('click', e => {
-        e.stopPropagation();
-        card.querySelector('.movie-summary').classList.toggle('expanded');
-        e.currentTarget.classList.toggle('rotated');
-      });
-      return card;
-    }
+          <h3>${movie.title}</h3>
+          <p>⭐ ${movie.vote_average.toFixed(1)}</p>
+        </div>
+        <div class="badge like">LIKE</div>
+        <div class="badge nope">NOPE</div>
+      `;
+      cardStack.appendChild(card);
 
-    function renderCards() {
-      const currentCount = movieCardsContainer.children.length;
-      for (let i = currentCount; i < movies.length; i++) {
-        const card = createMovieCardHTML(movies[i]);
-        movieCardsContainer.prepend(card);
-      }
-      updateCardStack();
-    }
-
-    function updateCardStack() {
-      const cards = Array.from(movieCardsContainer.children);
-      cards.forEach((card, i) => {
-        if (i === cards.length - 1) {
-          card.classList.add("active");
-          card.classList.remove("inactive");
-          gsap.set(card, {clearProps:"all"});
-          initializeDraggable(card);
-        } else {
-          card.classList.add("inactive");
-          gsap.set(card, {scale: 0.95, y: (cards.length-i)*-5});
-        }
-      });
-    }
-
-    function initializeDraggable(card) {
       Draggable.create(card, {
         type: "x,y",
-        onDragEnd: function() {
-          if (this.x > 150) handleSwipe(card, "right");
-          else if (this.x < -150) handleSwipe(card, "left");
-          else gsap.to(card, {x:0, y:0, rotation:0});
+        inertia: true,
+        onDrag: function(){
+          let likeBadge = card.querySelector(".badge.like");
+          let nopeBadge = card.querySelector(".badge.nope");
+          let opacity = Math.min(Math.abs(this.x) / 100, 1);
+          if(this.x > 0){
+            likeBadge.style.opacity = opacity;
+            nopeBadge.style.opacity = 0;
+          } else {
+            nopeBadge.style.opacity = opacity;
+            likeBadge.style.opacity = 0;
+          }
+          gsap.to(card,{rotation:this.x/20});
+        },
+        onDragEnd: function(){
+          if(Math.abs(this.x) > 150){
+            if(this.x > 0){ handleSwipe(card,"right"); }
+            else { handleSwipe(card,"left"); }
+          } else {
+            gsap.to(card,{x:0,y:0,rotation:0,duration:0.5});
+            card.querySelector(".badge.like").style.opacity=0;
+            card.querySelector(".badge.nope").style.opacity=0;
+          }
         }
       });
     }
 
-    function handleSwipe(card, dir) {
-      gsap.to(card, {x: dir==="right"?500:-500, y:100, rotation: dir==="right"?20:-20, opacity:0, duration:0.4, onComplete:()=>{
-        card.remove(); updateCardStack();
-      }});
-      if (dir==="right") addToWatchlist(card);
-      if (movieCardsContainer.children.length < 3) loadMoreMovies();
-    }
-
-    function addToWatchlist(card) {
-      const id = parseInt(card.dataset.id);
-      if (!likedMovies.some(m=>m.id===id)) {
-        const movie = movies.find(m=>m.id===id);
-        likedMovies.push(movie);
-        localStorage.setItem('likedMovies', JSON.stringify(likedMovies));
+    function handleSwipe(card,dir){
+      if(dir==="right"){
+        const title = card.querySelector("h3").innerText;
+        const poster = card.querySelector("img").src;
+        const rating = card.querySelector("p").innerText;
+        if(!watchlist.some(m=>m.title===title)){
+          watchlist.push({title,poster,rating});
+          localStorage.setItem("watchlist",JSON.stringify(watchlist));
+        }
       }
+      gsap.to(card,{x:dir==="right"?window.innerWidth:-window.innerWidth,y:-100,rotation:dir==="right"?20:-20,duration:0.6,ease:"power2.in",onComplete:()=>{
+        card.remove();
+        if(cardStack.children.length<3) loadMoreMovies();
+      }});
     }
 
-    // Watchlist UI
-    function renderWatchlist() {
-      watchlistContent.innerHTML = "";
-      if (likedMovies.length === 0) {
-        watchlistContent.appendChild(emptyWatchlistMsg);
+    function renderCards(){
+      cardStack.innerHTML="";
+      movies.forEach(movie=>createCard(movie));
+      const cards = document.querySelectorAll(".movie-card");
+      cards.forEach((c,i)=>{c.style.zIndex=movies.length-i;});
+    }
+
+    function renderWatchlist(){
+      watchlistContent.innerHTML="";
+      if(watchlist.length===0){
+        watchlistContent.innerHTML="<p>No movies added yet.</p>";
       } else {
-        likedMovies.forEach(m=>{
+        watchlist.forEach(m=>{
           const item=document.createElement("div");
-          item.className="watchlist-movie";
-          item.innerHTML=`
-            <img src="${TMDB_IMAGE_BASE_URL}${m.poster_path}" />
-            <div class="watchlist-movie-details"><h4>${m.title}</h4><p>⭐ ${m.vote_average.toFixed(1)}</p></div>`;
+          item.classList.add("watchlist-item");
+          item.innerHTML=`<img src="${m.poster}"><div><h4>${m.title}</h4><p>${m.rating}</p></div>`;
           watchlistContent.appendChild(item);
         });
       }
     }
-    watchlistBtn.addEventListener("click", ()=>{renderWatchlist(); watchlistOverlay.classList.add("active");});
-    closeWatchlistBtn.addEventListener("click", ()=>watchlistOverlay.classList.remove("active"));
-    nopeBtn.addEventListener("click", ()=>{const c=document.querySelector(".movie-card.active"); if(c) handleSwipe(c,"left");});
-    loveBtn.addEventListener("click", ()=>{const c=document.querySelector(".movie-card.active"); if(c) handleSwipe(c,"right");});
 
-    async function loadMoreMovies() {
+    watchlistBtn.addEventListener("click",()=>{renderWatchlist();watchlistOverlay.classList.add("active");});
+    closeWatchlistBtn.addEventListener("click",()=>watchlistOverlay.classList.remove("active"));
+
+    nopeBtn.addEventListener("click",()=>{
+      const c=document.querySelector(".movie-card:last-child");
+      if(c){
+        const nopeBadge = c.querySelector(".badge.nope");
+        gsap.fromTo(nopeBadge,{opacity:1,scale:1.2},{opacity:0,scale:1,duration:0.5});
+        gsap.to(c,{x:-window.innerWidth,y:-100,rotation:-20,duration:0.6,ease:"power2.in",onComplete:()=>handleSwipe(c,"left")});
+      }
+    });
+
+    loveBtn.addEventListener("click",()=>{
+      const c=document.querySelector(".movie-card:last-child");
+      if(c){
+        const likeBadge = c.querySelector(".badge.like");
+        gsap.fromTo(likeBadge,{opacity:1,scale:1.2},{opacity:0,scale:1,duration:0.5});
+        gsap.to(c,{x:window.innerWidth,y:-100,rotation:20,duration:0.6,ease:"power2.in",onComplete:()=>handleSwipe(c,"right")});
+      }
+    });
+
+    async function loadMoreMovies(){
       const newMovies = await fetchMovies(Math.floor(Math.random()*10)+1);
       movies.push(...newMovies);
       renderCards();
     }
 
-    (async()=>{ movies=await fetchMovies(); renderCards(); })();
+    (async()=>{
+      movies = await fetchMovies();
+      renderCards();
+    })();
+
+    // Particle background
+    const canvas = document.createElement("canvas");
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+    document.getElementById("particles").appendChild(canvas);
+    const ctx=canvas.getContext("2d");
+    let particles=[];
+    for(let i=0;i<100;i++){
+      particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5});
+    }
+    function drawParticles(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle="white";
+      particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+        p.x+=p.dx;p.y+=p.dy;
+        if(p.x<0||p.x>canvas.width) p.dx*=-1;
+        if(p.y<0||p.y>canvas.height) p.dy*=-1;
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
   </script>
 </body>
 </html>
