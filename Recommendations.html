@@ -1,1499 +1,750 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-  <meta charset="UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>SwipeFLIX</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-
-    :root {
-
-      --primary-red: #ff4d4d;
-
-      --dark-bg: #111;
-
-      --card-bg: #1a1a1a;
-
-      --text-light: #f0f0f0;
-
-      --text-fade: #aaa;
-
-    }
-
-
-
-    body {
-
-      margin: 0;
-
-      font-family: 'Montserrat', Arial, sans-serif;
-
-      background: var(--dark-bg);
-
-      color: var(--text-light);
-
-      overflow: hidden; /* Hide scrollbars for the particle effect */
-
-      height: 100vh;
-
-      display: flex;
-
-      flex-direction: column;
-
-    }
-
-
-
-    /* Background Particle Effect */
-
-    .particle-container {
-
-      position: fixed;
-
-      top: 0;
-
-      left: 0;
-
-      width: 100%;
-
-      height: 100%;
-
-      z-index: -1;
-
-      pointer-events: none;
-
-      overflow: hidden;
-
-    }
-
-
-
-    .particle {
-
-      position: absolute;
-
-      background: rgba(255, 77, 77, 0.4); /* Red particles */
-
-      border-radius: 50%;
-
-      animation: floatParticles linear infinite;
-
-      opacity: 0;
-
-      transform: scale(0);
-
-    }
-
-
-
-    @keyframes floatParticles {
-
-      0% {
-
-        transform: translate(var(--x1, 0), var(--y1, 0)) scale(0);
-
-        opacity: 0;
-
-      }
-
-      10% {
-
-        opacity: 0.8;
-
-        transform: translate(var(--x2, 0), var(--y2, 0)) scale(1);
-
-      }
-
-      90% {
-
-        opacity: 0.8;
-
-        transform: translate(var(--x3, 0), var(--y3, 0)) scale(0.8);
-
-      }
-
-      100% {
-
-        transform: translate(var(--x4, 0), var(--y4, 0)) scale(0);
-
-        opacity: 0;
-
-      }
-
-    }
-
-
-
-    header {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      padding: 15px 20px;
-
-      background: rgba(0,0,0,0.5); /* Semi-transparent header */
-
-      font-size: 1.3em;
-
-      position: relative;
-
-      z-index: 5;
-
-    }
-
-    header h1 {
-
-        margin: 0;
-
-        font-size: 1.5em;
-
-        color: var(--primary-red);
-
-        font-weight: 700;
-
-    }
-
-
-
-    #watchlistBtn {
-
-      background: var(--primary-red);
-
-      border: none;
-
-      padding: 10px 18px;
-
-      font-size: 0.9em;
-
-      border-radius: 25px;
-
-      cursor: pointer;
-
-      color: var(--text-light);
-
-      font-weight: 600;
-
-      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
-
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    }
-
-    #watchlistBtn:hover {
-
-        transform: translateY(-2px);
-
-        box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
-
-    }
-
-
-
-    .main-content {
-
-      flex-grow: 1;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      position: relative;
-
-      padding: 20px;
-
-    }
-
-
-
-    #movieCardsContainer {
-
-      position: relative;
-
-      width: 350px;
-
-      max-width: 90vw;
-
-      height: 550px;
-
-      margin-bottom: 30px;
-
-    }
-
-
-
-    .movie-card {
-
-      position: absolute;
-
-      width: 100%;
-
-      height: 100%;
-
-      top: 0;
-
-      left: 0;
-
-      border-radius: 20px;
-
-      overflow: hidden;
-
-      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-
-      background: var(--card-bg);
-
-      display: flex;
-
-      flex-direction: column;
-
-      cursor: grab;
-
-      transition: transform 0.3s ease, opacity 0.3s ease; /* For removing cards */
-
-      will-change: transform, opacity; /* Optimize for animations */
-
-    }
-
-
-
-    .movie-card.active {
-
-        z-index: 2; /* Ensure the top card is interactive */
-
-    }
-
-    .movie-card.inactive {
-
-        z-index: 1; /* Stack order for cards below */
-
-    }
-
-
-
-    .movie-poster {
-
-      width: 100%;
-
-      height: 70%;
-
-      object-fit: cover;
-
-      display: block;
-
-    }
-
-
-
-    .movie-info {
-
-      padding: 15px;
-
-      background: rgba(0,0,0,0.85);
-
-      flex-grow: 1;
-
-      display: flex;
-
-      flex-direction: column;
-
-      justify-content: space-between;
-
-      position: relative;
-
-    }
-
-    .movie-info h3 {
-
-      margin: 0 0 5px 0;
-
-      color: var(--primary-red);
-
-      font-size: 1.4em;
-
-      line-height: 1.2;
-
-    }
-
-    .movie-info p.rating {
-
-      margin: 0 0 10px 0;
-
-      font-size: 0.9em;
-
-      color: var(--text-fade);
-
-    }
-
-    .movie-summary {
-
-      font-size: 0.85em;
-
-      line-height: 1.4;
-
-      max-height: 0;
-
-      overflow: hidden;
-
-      transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
-
-      opacity: 0;
-
-      color: var(--text-fade);
-
-    }
-
-    .movie-summary.expanded {
-
-      max-height: 200px; /* Adjust based on content */
-
-      opacity: 1;
-
-      margin-top: 10px;
-
-    }
-
-
-
-    .expand-arrow {
-
-      position: absolute;
-
-      bottom: 5px;
-
-      right: 50%;
-
-      transform: translateX(50%);
-
-      width: 30px;
-
-      height: 30px;
-
-      background: rgba(255,255,255,0.1);
-
-      border-radius: 50%;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      cursor: pointer;
-
-      font-size: 1.2em;
-
-      transition: transform 0.3s ease;
-
-    }
-
-    .expand-arrow svg {
-
-        fill: var(--text-light);
-
-        width: 15px;
-
-        height: 15px;
-
-    }
-
-    .expand-arrow.rotated {
-
-        transform: translateX(50%) rotate(180deg);
-
-    }
-
-
-
-
-
-    .buttons-container {
-
-      display: flex;
-
-      justify-content: center;
-
-      gap: 30px; /* Space between buttons */
-
-      width: 100%;
-
-      max-width: 350px;
-
-      padding-bottom: 20px;
-
-      position: relative;
-
-      z-index: 5;
-
-    }
-
-
-
-    .action-button {
-
-      width: 70px;
-
-      height: 70px;
-
-      border-radius: 50%;
-
-      border: none;
-
-      font-size: 2em;
-
-      cursor: pointer;
-
-      color: white;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: center;
-
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-
-    }
-
-    .action-button:hover {
-
-        transform: translateY(-3px);
-
-    }
-
-    .action-button:active {
-
-        transform: translateY(0);
-
-    }
-
-
-
-    #nopeBtn {
-
-      background: rgba(255, 0, 0, 0.7);
-
-      box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4);
-
-    }
-
-    #nopeBtn:hover {
-
-        box-shadow: 0 8px 25px rgba(255, 0, 0, 0.6);
-
-    }
-
-
-
-    #loveBtn {
-
-      background: rgba(255, 0, 100, 0.7);
-
-      box-shadow: 0 5px 20px rgba(255, 0, 100, 0.4);
-
-    }
-
-    #loveBtn:hover {
-
-        box-shadow: 0 8px 25px rgba(255, 0, 100, 0.6);
-
-    }
-
-
-
-
-
-    /* Watchlist Popup */
-
-    .popup-overlay {
-
-        position: fixed;
-
-        top: 0;
-
-        left: 0;
-
-        width: 100%;
-
-        height: 100%;
-
-        background: rgba(0, 0, 0, 0.8);
-
-        display: none; /* Hidden by default */
-
-        justify-content: center;
-
-        align-items: center;
-
-        z-index: 10;
-
-        opacity: 0;
-
-        transition: opacity 0.3s ease;
-
-    }
-
-    .popup-overlay.active {
-
-        display: flex;
-
-        opacity: 1;
-
-    }
-
-
-
-    #watchlistPopup {
-
-      background: var(--card-bg);
-
-      padding: 25px;
-
-      border-radius: 15px;
-
-      width: 90%;
-
-      max-width: 450px;
-
-      max-height: 80vh;
-
-      display: flex;
-
-      flex-direction: column;
-
-      box-shadow: 0 10px 30px rgba(255, 77, 77, 0.3);
-
-      transform: translateY(-20px);
-
-      opacity: 0;
-
-      transition: transform 0.3s ease, opacity 0.3s ease;
-
-    }
-
-    .popup-overlay.active #watchlistPopup {
-
-        transform: translateY(0);
-
-        opacity: 1;
-
-    }
-
-
-
-    #watchlistPopup h2 {
-
-      margin-top: 0;
-
-      color: var(--primary-red);
-
-      font-weight: 700;
-
-      border-bottom: 1px solid rgba(255, 77, 77, 0.2);
-
-      padding-bottom: 10px;
-
-      margin-bottom: 15px;
-
-    }
-
-    #watchlistContent {
-
-      flex-grow: 1;
-
-      overflow-y: auto;
-
-      margin-bottom: 15px;
-
-      padding-right: 10px; /* For scrollbar */
-
-    }
-
-    .watchlist-movie {
-
-      display: flex;
-
-      align-items: center;
-
-      margin-bottom: 12px;
-
-      padding: 8px;
-
-      background: rgba(0,0,0,0.3);
-
-      border-radius: 8px;
-
-      transition: background 0.2s ease;
-
-    }
-
-    .watchlist-movie:hover {
-
-        background: rgba(0,0,0,0.5);
-
-    }
-
-    .watchlist-movie img {
-
-      width: 60px;
-
-      min-width: 60px;
-
-      height: 90px;
-
-      object-fit: cover;
-
-      border-radius: 6px;
-
-      margin-right: 15px;
-
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-
-    }
-
-    .watchlist-movie-details {
-
-        flex-grow: 1;
-
-    }
-
-    .watchlist-movie-details h4 {
-
-        margin: 0 0 5px 0;
-
-        font-size: 1.1em;
-
-        color: var(--text-light);
-
-    }
-
-    .watchlist-movie-details p {
-
-        margin: 0;
-
-        font-size: 0.85em;
-
-        color: var(--text-fade);
-
-    }
-
-
-
-
-
-    #closeWatchlistBtn {
-
-      background: var(--primary-red);
-
-      border: none;
-
-      padding: 10px 20px;
-
-      color: white;
-
-      cursor: pointer;
-
-      border-radius: 25px;
-
-      font-size: 1em;
-
-      font-weight: 600;
-
-      align-self: flex-end; /* Pushes button to the right */
-
-      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
-
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    }
-
-    #closeWatchlistBtn:hover {
-
-        transform: translateY(-2px);
-
-        box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
-
-    }
-
-
-
-    /* Media Queries for Responsiveness */
-
-    @media (max-width: 600px) {
-
-      header {
-
-        padding: 10px 15px;
-
-        font-size: 1.1em;
-
-      }
-
-      header h1 {
-
-        font-size: 1.3em;
-
-      }
-
-      #watchlistBtn {
-
-        padding: 8px 15px;
-
-        font-size: 0.8em;
-
-      }
-
-      #movieCardsContainer {
-
-        height: 500px;
-
-        width: 300px;
-
-      }
-
-      .action-button {
-
-        width: 60px;
-
-        height: 60px;
-
-        font-size: 1.7em;
-
-      }
-
-      .buttons-container {
-
-        gap: 20px;
-
-        padding-bottom: 10px;
-
-      }
-
-      .movie-info h3 {
-
-        font-size: 1.2em;
-
-      }
-
-      .movie-info p.rating {
-
-        font-size: 0.8em;
-
-      }
-
-      .movie-summary {
-
-        font-size: 0.8em;
-
-      }
-
-      #watchlistPopup {
-
-        padding: 20px;
-
-      }
-
-      .watchlist-movie img {
-
-        width: 50px;
-
-        height: 75px;
-
-        margin-right: 10px;
-
-      }
-
-      .watchlist-movie-details h4 {
-
-        font-size: 1em;
-
-      }
-
-    }
-
-  </style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwipeFLIX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-red: #ff4d4d;
+      --dark-bg: #111;
+      --card-bg: #1a1a1a;
+      --text-light: #f0f0f0;
+      --text-fade: #aaa;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: var(--dark-bg);
+      color: var(--text-light);
+      overflow: hidden; /* Hide scrollbars for the particle effect */
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Background Particle Effect */
+    .particle-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      background: rgba(255, 77, 77, 0.4); /* Red particles */
+      border-radius: 50%;
+      animation: floatParticles linear infinite;
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    @keyframes floatParticles {
+      0% {
+        transform: translate(var(--x1, 0), var(--y1, 0)) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.8;
+        transform: translate(var(--x2, 0), var(--y2, 0)) scale(1);
+      }
+      90% {
+        opacity: 0.8;
+        transform: translate(var(--x3, 0), var(--y3, 0)) scale(0.8);
+      }
+      100% {
+        transform: translate(var(--x4, 0), var(--y4, 0)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: rgba(0,0,0,0.5); /* Semi-transparent header */
+      font-size: 1.3em;
+      position: relative;
+      z-index: 5;
+    }
+    header h1 {
+        margin: 0;
+        font-size: 1.5em;
+        color: var(--primary-red);
+        font-weight: 700;
+    }
+
+    #watchlistBtn {
+      background: var(--primary-red);
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.9em;
+      border-radius: 25px;
+      cursor: pointer;
+      color: var(--text-light);
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #watchlistBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
+    }
+
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 20px;
+    }
+
+    #movieCardsContainer {
+      position: relative;
+      width: 350px;
+      max-width: 90vw;
+      height: 550px;
+      margin-bottom: 30px;
+    }
+
+    .movie-card {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      cursor: grab;
+      transition: transform 0.3s ease, opacity 0.3s ease; /* For removing cards */
+      will-change: transform, opacity; /* Optimize for animations */
+    }
+
+    .movie-card.active {
+        z-index: 2; /* Ensure the top card is interactive */
+    }
+    .movie-card.inactive {
+        z-index: 1; /* Stack order for cards below */
+    }
+
+    .movie-poster {
+      width: 100%;
+      height: 70%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .movie-info {
+      padding: 15px;
+      background: rgba(0,0,0,0.85);
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .movie-info h3 {
+      margin: 0 0 5px 0;
+      color: var(--primary-red);
+      font-size: 1.4em;
+      line-height: 1.2;
+    }
+    .movie-info p.rating {
+      margin: 0 0 10px 0;
+      font-size: 0.9em;
+      color: var(--text-fade);
+    }
+    .movie-summary {
+      font-size: 0.85em;
+      line-height: 1.4;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+      opacity: 0;
+      color: var(--text-fade);
+    }
+    .movie-summary.expanded {
+      max-height: 200px; /* Adjust based on content */
+      opacity: 1;
+      margin-top: 10px;
+    }
+
+    .expand-arrow {
+      position: absolute;
+      bottom: 5px;
+      right: 50%;
+      transform: translateX(50%);
+      width: 30px;
+      height: 30px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: transform 0.3s ease;
+    }
+    .expand-arrow svg {
+        fill: var(--text-light);
+        width: 15px;
+        height: 15px;
+    }
+    .expand-arrow.rotated {
+        transform: translateX(50%) rotate(180deg);
+    }
+
+
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px; /* Space between buttons */
+      width: 100%;
+      max-width: 350px;
+      padding-bottom: 20px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .action-button {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: none;
+      font-size: 2em;
+      cursor: pointer;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    }
+    .action-button:hover {
+        transform: translateY(-3px);
+    }
+    .action-button:active {
+        transform: translateY(0);
+    }
+
+    #nopeBtn {
+      background: rgba(255, 0, 0, 0.7);
+      box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4);
+    }
+    #nopeBtn:hover {
+        box-shadow: 0 8px 25px rgba(255, 0, 0, 0.6);
+    }
+
+    #loveBtn {
+      background: rgba(255, 0, 100, 0.7);
+      box-shadow: 0 5px 20px rgba(255, 0, 100, 0.4);
+    }
+    #loveBtn:hover {
+        box-shadow: 0 8px 25px rgba(255, 0, 100, 0.6);
+    }
+
+
+    /* Watchlist Popup */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none; /* Hidden by default */
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .popup-overlay.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    #watchlistPopup {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 450px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(255, 77, 77, 0.3);
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .popup-overlay.active #watchlistPopup {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    #watchlistPopup h2 {
+      margin-top: 0;
+      color: var(--primary-red);
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 77, 77, 0.2);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    #watchlistContent {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      padding-right: 10px; /* For scrollbar */
+    }
+    .watchlist-movie {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+    .watchlist-movie:hover {
+        background: rgba(0,0,0,0.5);
+    }
+    .watchlist-movie img {
+      width: 60px;
+      min-width: 60px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .watchlist-movie-details {
+        flex-grow: 1;
+    }
+    .watchlist-movie-details h4 {
+        margin: 0 0 5px 0;
+        font-size: 1.1em;
+        color: var(--text-light);
+    }
+    .watchlist-movie-details p {
+        margin: 0;
+        font-size: 0.85em;
+        color: var(--text-fade);
+    }
+
+
+    #closeWatchlistBtn {
+      background: var(--primary-red);
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      cursor: pointer;
+      border-radius: 25px;
+      font-size: 1em;
+      font-weight: 600;
+      align-self: flex-end; /* Pushes button to the right */
+      box-shadow: 0 4px 15px rgba(255, 77, 77, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #closeWatchlistBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 600px) {
+      header {
+        padding: 10px 15px;
+        font-size: 1.1em;
+      }
+      header h1 {
+        font-size: 1.3em;
+      }
+      #watchlistBtn {
+        padding: 8px 15px;
+        font-size: 0.8em;
+      }
+      #movieCardsContainer {
+        height: 500px;
+        width: 300px;
+      }
+      .action-button {
+        width: 60px;
+        height: 60px;
+        font-size: 1.7em;
+      }
+      .buttons-container {
+        gap: 20px;
+        padding-bottom: 10px;
+      }
+      .movie-info h3 {
+        font-size: 1.2em;
+      }
+      .movie-info p.rating {
+        font-size: 0.8em;
+      }
+      .movie-summary {
+        font-size: 0.8em;
+      }
+      #watchlistPopup {
+        padding: 20px;
+      }
+      .watchlist-movie img {
+        width: 50px;
+        height: 75px;
+        margin-right: 10px;
+      }
+      .watchlist-movie-details h4 {
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
-
 <body>
-
-  <div class="particle-container"></div>
-
-
-
-  <header>
-
-    <h1>Swipeflix</h1>
-
-    <button id="watchlistBtn">Watchlist</button>
-
-  </header>
-
-
-
-  <div class="main-content">
-
-    <div id="movieCardsContainer">
-
-      <!-- Movie cards will be loaded here -->
-
-    </div>
-
-
-
-    <div class="buttons-container">
-
-      <button id="nopeBtn" class="action-button">✖</button>
-
-      <button id="loveBtn" class="action-button">❤</button>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- Watchlist Popup -->
-
-  <div class="popup-overlay" id="watchlistOverlay">
-
-    <div id="watchlistPopup">
-
-      <h2>Your Watchlist</h2>
-
-      <div id="watchlistContent">
-
-        <!-- Liked movies will be loaded here -->
-
-        <p id="emptyWatchlistMsg" style="text-align: center; color: var(--text-fade);">No movies in your watchlist yet!</p>
-
-      </div>
-
-      <button id="closeWatchlistBtn">Close</button>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- GSAP and Draggable for swipe functionality -->
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/Draggable.min.js"></script>
-
-
-
-  <script>
-
-    const TMDB_API_KEY = "0d056e1910c8b138b66596088c28472c"; // Your TMDB API Key
-
-    const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-
-
-
-    const movieCardsContainer = document.getElementById("movieCardsContainer");
-
-    const nopeBtn = document.getElementById("nopeBtn");
-
-    const loveBtn = document.getElementById("loveBtn");
-
-    const watchlistBtn = document.getElementById("watchlistBtn");
-
-    const watchlistOverlay = document.getElementById("watchlistOverlay");
-
-    const watchlistContent = document.getElementById("watchlistContent");
-
-    const closeWatchlistBtn = document.getElementById("closeWatchlistBtn");
-
-    const emptyWatchlistMsg = document.getElementById("emptyWatchlistMsg");
-
-
-
-    let currentMovieIndex = 0;
-
-    let movies = []; // Stores all fetched movies
-
-    let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || []; // Load from local storage
-
-
-
-    // --- Particle Effect (CSS/JS controlled) ---
-
-    const particleContainer = document.querySelector('.particle-container');
-
-    function createParticle() {
-
-      const particle = document.createElement('div');
-
-      particle.classList.add('particle');
-
-      particleContainer.appendChild(particle);
-
-
-
-      const size = Math.random() * 4 + 2; // 2-6px
-
-      particle.style.width = `${size}px`;
-
-      particle.style.height = `${size}px`;
-
-
-
-      const startX = Math.random() * window.innerWidth;
-
-      const startY = Math.random() * window.innerHeight;
-
-      const endX = Math.random() * window.innerWidth * (Math.random() > 0.5 ? 1.5 : -0.5);
-
-      const endY = Math.random() * window.innerHeight * (Math.random() > 0.5 ? 1.5 : -0.5);
-
-
-
-      const duration = Math.random() * 15 + 10; // 10-25 seconds
-
-      const delay = Math.random() * 5; // 0-5 seconds delay
-
-
-
-      particle.style.setProperty('--x1', `${startX}px`);
-
-      particle.style.setProperty('--y1', `${startY}px`);
-
-      particle.style.setProperty('--x2', `${startX + (Math.random() - 0.5) * 200}px`);
-
-      particle.style.setProperty('--y2', `${startY + (Math.random() - 0.5) * 200}px`);
-
-      particle.style.setProperty('--x3', `${endX + (Math.random() - 0.5) * 200}px`);
-
-      particle.style.setProperty('--y3', `${endY + (Math.random() - 0.5) * 200}px`);
-
-      particle.style.setProperty('--x4', `${endX}px`);
-
-      particle.style.setProperty('--y4', `${endY}px`);
-
-
-
-      particle.style.animationDuration = `${duration}s`;
-
-      particle.style.animationDelay = `${delay}s`;
-
-
-
-      particle.addEventListener('animationend', () => {
-
-        particle.remove();
-
-        createParticle(); // Recreate particle to keep the effect going
-
-      });
-
-    }
-
-
-
-    // Create a few particles initially
-
-    for (let i = 0; i < 50; i++) {
-
-      createParticle();
-
-    }
-
-
-
-
-
-    // --- TMDB API Functions ---
-
-    async function fetchMovies(page = 1) {
-
-      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&page=${page}`;
-
-      try {
-
-        const response = await fetch(url);
-
-        const data = await response.json();
-
-        return data.results;
-
-      } catch (error) {
-
-        console.error("Error fetching movies:", error);
-
-        return [];
-
-      }
-
-    }
-
-
-
-    function createMovieCardHTML(movie) {
-
-      const posterPath = movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Poster';
-
-      const overview = movie.overview || "No summary available.";
-
-      const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
-
-
-
-      const card = document.createElement("div");
-
-      card.className = "movie-card inactive"; // Start as inactive, top one becomes active
-
-      card.dataset.movieId = movie.id;
-
-      card.dataset.title = movie.title;
-
-      card.dataset.poster = posterPath;
-
-      card.dataset.overview = overview;
-
-
-
-      card.innerHTML = `
-
-        <img class="movie-poster" src="${posterPath}" alt="${movie.title}" />
-
-        <div class="movie-info">
-
-          <div>
-
-            <h3>${movie.title}</h3>
-
-            <p class="rating">⭐ ${rating}</p>
-
-          </div>
-
-          <div class="movie-summary">
-
-            ${overview}
-
-          </div>
-
-          <div class="expand-arrow" role="button" aria-expanded="false" aria-controls="summary-${movie.id}">
-
-            <svg viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
-
-          </div>
-
-        </div>
-
-      `;
-
-
-
-      // Add event listener for expand arrow
-
-      const expandArrow = card.querySelector('.expand-arrow');
-
-      expandArrow.addEventListener('click', (e) => {
-
-        e.stopPropagation(); // Prevent card drag if clicking arrow
-
-        const summary = card.querySelector('.movie-summary');
-
-        summary.classList.toggle('expanded');
-
-        expandArrow.classList.toggle('rotated');
-
-        expandArrow.setAttribute('aria-expanded', summary.classList.contains('expanded'));
-
-      });
-
-
-
-      return card;
-
-    }
-
-
-
-    async function loadMoreMovies() {
-
-      // For now, we'll just keep adding to our local array.
-
-      // In a real app, you'd manage what's already displayed/swiped.
-
-      const newMovies = await fetchMovies(movies.length / 20 + 1); // Simple page calculation
-
-      movies = movies.concat(newMovies);
-
-      renderCards();
-
-    }
-
-
-
-    function renderCards() {
-
-        // Clear existing cards if refreshing, or add new ones
-
-        // For simplicity, we just add new ones to the bottom of the stack
-
-        // This function should ideally only add cards that aren't already there.
-
-        const currentCardCount = movieCardsContainer.children.length;
-
-        for (let i = currentCardCount; i < movies.length; i++) {
-
-            const movie = movies[i];
-
-            // Only add if not already liked (to avoid showing them again)
-
-            if (!likedMovies.some(lm => lm.id === movie.id)) {
-
-                const card = createMovieCardHTML(movie);
-
-                movieCardsContainer.prepend(card); // Add to the bottom of the stack
-
-            }
-
-        }
-
-        updateCardStack();
-
-    }
-
-
-
-    function updateCardStack() {
-
-        const cards = Array.from(movieCardsContainer.children);
-
-        cards.forEach((card, index) => {
-
-            if (index === cards.length - 1) { // Top card
-
-                card.classList.add('active');
-
-                card.classList.remove('inactive');
-
-                gsap.set(card, {clearProps: "all"}); // Reset any previous drag transforms
-
-                initializeDraggable(card);
-
-            } else {
-
-                card.classList.remove('active');
-
-                card.classList.add('inactive');
-
-                // Optional: Slightly scale down or position inactive cards
-
-                gsap.set(card, {
-
-                    scale: 0.95 + (index * 0.02), // Smaller cards further down
-
-                    y: 10 - (index * 5),
-
-                    rotation: 0,
-
-                    x: 0,
-
-                    zIndex: 1
-
-                });
-
-            }
-
-        });
-
-        if (cards.length < 5 && movies.length > 0) { // Keep a buffer of cards
-
-            loadMoreMovies();
-
-        } else if (cards.length === 0 && movies.length === 0) {
-
-            // Handle no more movies to show
-
-            movieCardsContainer.innerHTML = '<p style="text-align: center; color: var(--text-fade);">No more movies for now! Try again later.</p>';
-
-        }
-
-    }
-
-
-
-
-
-    // --- Swipe/Drag Functionality with GSAP Draggable ---
-
-    function initializeDraggable(card) {
-
-        if (!card) return;
-
-
-
-        // Ensure only one Draggable instance per card
-
-        if (Draggable.get(card)) {
-
-            Draggable.get(card).kill();
-
-        }
-
-
-
-        Draggable.create(card, {
-
-            type: "x,y",
-
-            edgeResistance: 0.65,
-
-            bounds: document.body,
-
-            inertia: true,
-
-            onDragEnd: function() {
-
-                const threshold = window.innerWidth * 0.25; // 25% of screen width
-
-                if (this.x > threshold) {
-
-                    // Swiped right (liked)
-
-                    handleSwipe(card, true);
-
-                } else if (this.x < -threshold) {
-
-                    // Swiped left (nope)
-
-                    handleSwipe(card, false);
-
-                } else {
-
-                    // Not far enough, snap back
-
-                    gsap.to(card, {x: 0, y: 0, rotation: 0, duration: 0.3, ease: "power2.out"});
-
-                }
-
-            },
-
-            onDrag: function() {
-
-                // Rotate card slightly based on drag direction
-
-                gsap.to(card, {rotation: this.x * 0.05, ease: "power2.out", duration: 0.1});
-
-            }
-
-        });
-
-    }
-
-
-
-    function handleSwipe(card, liked) {
-
-        const movieId = card.dataset.movieId;
-
-        const movieTitle = card.dataset.title;
-
-        const moviePoster = card.dataset.poster;
-
-        const movieOverview = card.dataset.overview;
-
-
-
-        if (liked) {
-
-            likedMovies.push({
-
-                id: movieId,
-
-                title: movieTitle,
-
-                poster: moviePoster,
-
-                overview: movieOverview
-
-            });
-
-            localStorage.setItem('likedMovies', JSON.stringify(likedMovies));
-
-            gsap.to(card, {
-
-                x: window.innerWidth,
-
-                rotation: 30,
-
-                opacity: 0,
-
-                duration: 0.5,
-
-                ease: "power2.in",
-
-                onComplete: () => card.remove()
-
-            });
-
-        } else {
-
-            gsap.to(card, {
-
-                x: -window.innerWidth,
-
-                rotation: -30,
-
-                opacity: 0,
-
-                duration: 0.5,
-
-                ease: "power2.in",
-
-                onComplete: () => card.remove()
-
-            });
-
-        }
-
-        // After swipe, update the stack and potentially load more movies
-
-        gsap.delayedCall(0.5, updateCardStack);
-
-    }
-
-
-
-    // --- Button Actions ---
-
-    nopeBtn.addEventListener('click', () => {
-
-        const topCard = movieCardsContainer.lastElementChild;
-
-        if (topCard) {
-
-            handleSwipe(topCard, false);
-
-        }
-
-    });
-
-
-
-    loveBtn.addEventListener('click', () => {
-
-        const topCard = movieCardsContainer.lastElementChild;
-
-        if (topCard) {
-
-            handleSwipe(topCard, true);
-
-        }
-
-    });
-
-
-
-    // --- Watchlist Popup Logic ---
-
-    watchlistBtn.addEventListener('click', () => {
-
-      watchlistContent.innerHTML = ''; // Clear previous content
-
-      if (likedMovies.length === 0) {
-
-        emptyWatchlistMsg.style.display = 'block';
-
-      } else {
-
-        emptyWatchlistMsg.style.display = 'none';
-
-        likedMovies.forEach(movie => {
-
-          const movieDiv = document.createElement('div');
-
-          movieDiv.classList.add('watchlist-movie');
-
-          movieDiv.innerHTML = `
-
-            <img src="${movie.poster}" alt="${movie.title}" />
-
-            <div class="watchlist-movie-details">
-
-                <h4>${movie.title}</h4>
-
-                <p>${movie.overview.substring(0, 70)}...</p>
-
-            </div>
-
-          `;
-
-          watchlistContent.appendChild(movieDiv);
-
-        });
-
-      }
-
-      watchlistOverlay.classList.add('active');
-
-    });
-
-
-
-    closeWatchlistBtn.addEventListener('click', () => {
-
-      watchlistOverlay.classList.remove('active');
-
-    });
-
-
-
-    watchlistOverlay.addEventListener('click', (e) => {
-
-        if (e.target === watchlistOverlay) { // Close if clicked outside the popup
-
-            watchlistOverlay.classList.remove('active');
-
-        }
-
-    });
-
-
-
-
-
-    // --- Initial Load ---
-
-    document.addEventListener("DOMContentLoaded", async () => {
-
-        // We're loading a batch of movies initially
-
-        movies = await fetchMovies(1);
-
-        renderCards(); // Display them
-
-    });
-
-
-
-  </script>
-
+  <div class="particle-container"></div>
+
+  <header>
+    <h1>Swipeflix</h1>
+    <button id="watchlistBtn">Watchlist</button>
+  </header>
+
+  <div class="main-content">
+    <div id="movieCardsContainer">
+      <!-- Movie cards will be loaded here -->
+    </div>
+
+    <div class="buttons-container">
+      <button id="nopeBtn" class="action-button">✖</button>
+      <button id="loveBtn" class="action-button">❤</button>
+    </div>
+  </div>
+
+  <!-- Watchlist Popup -->
+  <div class="popup-overlay" id="watchlistOverlay">
+    <div id="watchlistPopup">
+      <h2>Your Watchlist</h2>
+      <div id="watchlistContent">
+        <!-- Liked movies will be loaded here -->
+        <p id="emptyWatchlistMsg" style="text-align: center; color: var(--text-fade);">No movies in your watchlist yet!</p>
+      </div>
+      <button id="closeWatchlistBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- GSAP and Draggable for swipe functionality -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/Draggable.min.js"></script>
+
+  <script>
+    const TMDB_API_KEY = "0d056e1910c8b138b66596088c28472c"; // Your TMDB API Key
+    const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+
+    const movieCardsContainer = document.getElementById("movieCardsContainer");
+    const nopeBtn = document.getElementById("nopeBtn");
+    const loveBtn = document.getElementById("loveBtn");
+    const watchlistBtn = document.getElementById("watchlistBtn");
+    const watchlistOverlay = document.getElementById("watchlistOverlay");
+    const watchlistContent = document.getElementById("watchlistContent");
+    const closeWatchlistBtn = document.getElementById("closeWatchlistBtn");
+    const emptyWatchlistMsg = document.getElementById("emptyWatchlistMsg");
+
+    let currentMovieIndex = 0;
+    let movies = []; // Stores all fetched movies
+    let likedMovies = JSON.parse(localStorage.getItem('likedMovies')) || []; // Load from local storage
+
+    // --- Particle Effect (CSS/JS controlled) ---
+    const particleContainer = document.querySelector('.particle-container');
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.classList.add('particle');
+      particleContainer.appendChild(particle);
+
+      const size = Math.random() * 4 + 2; // 2-6px
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+
+      const startX = Math.random() * window.innerWidth;
+      const startY = Math.random() * window.innerHeight;
+      const endX = Math.random() * window.innerWidth * (Math.random() > 0.5 ? 1.5 : -0.5);
+      const endY = Math.random() * window.innerHeight * (Math.random() > 0.5 ? 1.5 : -0.5);
+
+      const duration = Math.random() * 15 + 10; // 10-25 seconds
+      const delay = Math.random() * 5; // 0-5 seconds delay
+
+      particle.style.setProperty('--x1', `${startX}px`);
+      particle.style.setProperty('--y1', `${startY}px`);
+      particle.style.setProperty('--x2', `${startX + (Math.random() - 0.5) * 200}px`);
+      particle.style.setProperty('--y2', `${startY + (Math.random() - 0.5) * 200}px`);
+      particle.style.setProperty('--x3', `${endX + (Math.random() - 0.5) * 200}px`);
+      particle.style.setProperty('--y3', `${endY + (Math.random() - 0.5) * 200}px`);
+      particle.style.setProperty('--x4', `${endX}px`);
+      particle.style.setProperty('--y4', `${endY}px`);
+
+      particle.style.animationDuration = `${duration}s`;
+      particle.style.animationDelay = `${delay}s`;
+
+      particle.addEventListener('animationend', () => {
+        particle.remove();
+        createParticle(); // Recreate particle to keep the effect going
+      });
+    }
+
+    // Create a few particles initially
+    for (let i = 0; i < 50; i++) {
+      createParticle();
+    }
+
+
+    // --- TMDB API Functions ---
+    async function fetchMovies(page = 1) {
+      const url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&page=${page}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.results;
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        return [];
+      }
+    }
+
+    function createMovieCardHTML(movie) {
+      const posterPath = movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : 'https://via.placeholder.com/300x450?text=No+Poster';
+      const overview = movie.overview || "No summary available.";
+      const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+
+      const card = document.createElement("div");
+      card.className = "movie-card inactive"; // Start as inactive, top one becomes active
+      card.dataset.movieId = movie.id;
+      card.dataset.title = movie.title;
+      card.dataset.poster = posterPath;
+      card.dataset.overview = overview;
+
+      card.innerHTML = `
+        <img class="movie-poster" src="${posterPath}" alt="${movie.title}" />
+        <div class="movie-info">
+          <div>
+            <h3>${movie.title}</h3>
+            <p class="rating">⭐ ${rating}</p>
+          </div>
+          <div class="movie-summary">
+            ${overview}
+          </div>
+          <div class="expand-arrow" role="button" aria-expanded="false" aria-controls="summary-${movie.id}">
+            <svg viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+          </div>
+        </div>
+      `;
+
+      // Add event listener for expand arrow
+      const expandArrow = card.querySelector('.expand-arrow');
+      expandArrow.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent card drag if clicking arrow
+        const summary = card.querySelector('.movie-summary');
+        summary.classList.toggle('expanded');
+        expandArrow.classList.toggle('rotated');
+        expandArrow.setAttribute('aria-expanded', summary.classList.contains('expanded'));
+      });
+
+      return card;
+    }
+
+    async function loadMoreMovies() {
+      // For now, we'll just keep adding to our local array.
+      // In a real app, you'd manage what's already displayed/swiped.
+      const newMovies = await fetchMovies(movies.length / 20 + 1); // Simple page calculation
+      movies = movies.concat(newMovies);
+      renderCards();
+    }
+
+    function renderCards() {
+        // Clear existing cards if refreshing, or add new ones
+        // For simplicity, we just add new ones to the bottom of the stack
+        // This function should ideally only add cards that aren't already there.
+        const currentCardCount = movieCardsContainer.children.length;
+        for (let i = currentCardCount; i < movies.length; i++) {
+            const movie = movies[i];
+            // Only add if not already liked (to avoid showing them again)
+            if (!likedMovies.some(lm => lm.id === movie.id)) {
+                const card = createMovieCardHTML(movie);
+                movieCardsContainer.prepend(card); // Add to the bottom of the stack
+            }
+        }
+        updateCardStack();
+    }
+
+    function updateCardStack() {
+        const cards = Array.from(movieCardsContainer.children);
+        cards.forEach((card, index) => {
+            if (index === cards.length - 1) { // Top card
+                card.classList.add('active');
+                card.classList.remove('inactive');
+                gsap.set(card, {clearProps: "all"}); // Reset any previous drag transforms
+                initializeDraggable(card);
+            } else {
+                card.classList.remove('active');
+                card.classList.add('inactive');
+                // Optional: Slightly scale down or position inactive cards
+                gsap.set(card, {
+                    scale: 0.95 + (index * 0.02), // Smaller cards further down
+                    y: 10 - (index * 5),
+                    rotation: 0,
+                    x: 0,
+                    zIndex: 1
+                });
+            }
+        });
+        if (cards.length < 5 && movies.length > 0) { // Keep a buffer of cards
+            loadMoreMovies();
+        } else if (cards.length === 0 && movies.length === 0) {
+            // Handle no more movies to show
+            movieCardsContainer.innerHTML = '<p style="text-align: center; color: var(--text-fade);">No more movies for now! Try again later.</p>';
+        }
+    }
+
+
+    // --- Swipe/Drag Functionality with GSAP Draggable ---
+    function initializeDraggable(card) {
+        if (!card) return;
+
+        // Ensure only one Draggable instance per card
+        if (Draggable.get(card)) {
+            Draggable.get(card).kill();
+        }
+
+        Draggable.create(card, {
+            type: "x,y",
+            edgeResistance: 0.65,
+            bounds: document.body,
+            inertia: true,
+            onDragEnd: function() {
+                const threshold = window.innerWidth * 0.25; // 25% of screen width
+                if (this.x > threshold) {
+                    // Swiped right (liked)
+                    handleSwipe(card, true);
+                } else if (this.x < -threshold) {
+                    // Swiped left (nope)
+                    handleSwipe(card, false);
+                } else {
+                    // Not far enough, snap back
+                    gsap.to(card, {x: 0, y: 0, rotation: 0, duration: 0.3, ease: "power2.out"});
+                }
+            },
+            onDrag: function() {
+                // Rotate card slightly based on drag direction
+                gsap.to(card, {rotation: this.x * 0.05, ease: "power2.out", duration: 0.1});
+            }
+        });
+    }
+
+    function handleSwipe(card, liked) {
+        const movieId = card.dataset.movieId;
+        const movieTitle = card.dataset.title;
+        const moviePoster = card.dataset.poster;
+        const movieOverview = card.dataset.overview;
+
+        if (liked) {
+            likedMovies.push({
+                id: movieId,
+                title: movieTitle,
+                poster: moviePoster,
+                overview: movieOverview
+            });
+            localStorage.setItem('likedMovies', JSON.stringify(likedMovies));
+            gsap.to(card, {
+                x: window.innerWidth,
+                rotation: 30,
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.in",
+                onComplete: () => card.remove()
+            });
+        } else {
+            gsap.to(card, {
+                x: -window.innerWidth,
+                rotation: -30,
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.in",
+                onComplete: () => card.remove()
+            });
+        }
+        // After swipe, update the stack and potentially load more movies
+        gsap.delayedCall(0.5, updateCardStack);
+    }
+
+    // --- Button Actions ---
+    nopeBtn.addEventListener('click', () => {
+        const topCard = movieCardsContainer.lastElementChild;
+        if (topCard) {
+            handleSwipe(topCard, false);
+        }
+    });
+
+    loveBtn.addEventListener('click', () => {
+        const topCard = movieCardsContainer.lastElementChild;
+        if (topCard) {
+            handleSwipe(topCard, true);
+        }
+    });
+
+    // --- Watchlist Popup Logic ---
+    watchlistBtn.addEventListener('click', () => {
+      watchlistContent.innerHTML = ''; // Clear previous content
+      if (likedMovies.length === 0) {
+        emptyWatchlistMsg.style.display = 'block';
+      } else {
+        emptyWatchlistMsg.style.display = 'none';
+        likedMovies.forEach(movie => {
+          const movieDiv = document.createElement('div');
+          movieDiv.classList.add('watchlist-movie');
+          movieDiv.innerHTML = `
+            <img src="${movie.poster}" alt="${movie.title}" />
+            <div class="watchlist-movie-details">
+                <h4>${movie.title}</h4>
+                <p>${movie.overview.substring(0, 70)}...</p>
+            </div>
+          `;
+          watchlistContent.appendChild(movieDiv);
+        });
+      }
+      watchlistOverlay.classList.add('active');
+    });
+
+    closeWatchlistBtn.addEventListener('click', () => {
+      watchlistOverlay.classList.remove('active');
+    });
+
+    watchlistOverlay.addEventListener('click', (e) => {
+        if (e.target === watchlistOverlay) { // Close if clicked outside the popup
+            watchlistOverlay.classList.remove('active');
+        }
+    });
+
+
+    // --- Initial Load ---
+    document.addEventListener("DOMContentLoaded", async () => {
+        // We're loading a batch of movies initially
+        movies = await fetchMovies(1);
+        renderCards(); // Display them
+    });
+
+  </script>
 </body>
-
 </html>
